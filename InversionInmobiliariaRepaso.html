@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#f6f5f1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Inversión Inmobiliaria">
 <title>Modelo · Inversión Inmobiliaria</title>
 <style>
 :root{
@@ -244,6 +241,35 @@ nav.tabs button.on{color:var(--amber)}
 }
 .back:hover{color:var(--txt)}
 .center-tease{text-align:center;color:var(--mut);font-size:13px;margin-top:26px;line-height:1.5}
+
+/* lead / intro de sección */
+.lead{font-size:14px;color:var(--mut);line-height:1.5;margin:0 0 16px}
+
+/* etiqueta del test activo */
+.q-label{
+  display:inline-block;font-family:ui-monospace,monospace;font-size:11.5px;font-weight:700;
+  letter-spacing:.04em;color:var(--amber-ink);background:var(--amber-soft);
+  border:1px solid var(--amber-line);border-radius:6px;padding:4px 9px;margin-bottom:14px;
+}
+
+/* lista de bloques de test por tema */
+.tqlist{display:flex;flex-direction:column;gap:11px}
+.tqcard{
+  text-align:left;width:100%;border:1px solid var(--line);background:var(--ink-2);
+  border-radius:13px;padding:16px;cursor:pointer;color:var(--txt);
+  transition:border-color .15s,transform .08s,box-shadow .15s;box-shadow:var(--shadow);
+}
+.tqcard:active{transform:scale(.985)}
+.tqcard:hover{border-color:var(--amber-line);box-shadow:var(--shadow-lift)}
+.tqtop{display:flex;align-items:center;gap:12px}
+.tqname{font-size:16px;font-weight:650;letter-spacing:-.01em;flex:1}
+.tqcount{
+  flex:none;min-width:30px;height:26px;padding:0 8px;border-radius:7px;display:grid;place-items:center;
+  font-family:ui-monospace,monospace;font-size:13px;font-weight:700;
+  background:var(--amber-soft);color:var(--amber-ink);border:1px solid var(--amber-line);
+}
+.tqcaps{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--amber-ink);margin-top:7px;letter-spacing:.02em}
+.tqdesc{font-size:13.5px;color:var(--mut);line-height:1.45;margin-top:5px}
 </style>
 </head>
 <body>
@@ -277,16 +303,20 @@ nav.tabs button.on{color:var(--amber)}
         <span class="ico">01</span><span class="t">Temario</span>
         <span class="d">21 temas resumidos, del flujo de caja al "arte" del análisis.</span>
       </button>
-      <button class="tile" onclick="startFlash()">
+      <button class="tile" onclick="openFlashPicker()">
         <span class="ico">02</span><span class="t">Flashcards</span>
-        <span class="d">45 conceptos y ratios. Toca para girar la tarjeta.</span>
+        <span class="d">45 conceptos y ratios. Todas o filtradas por tema.</span>
       </button>
       <button class="tile" onclick="startQuiz()">
-        <span class="ico">03</span><span class="t">Examen</span>
-        <span class="d">72 preguntas tipo test con corrección y explicación.</span>
+        <span class="ico">03</span><span class="t">Examen general</span>
+        <span class="d">72 preguntas de todo el temario, con corrección y explicación.</span>
+      </button>
+      <button class="tile" onclick="openTemaQuiz()">
+        <span class="ico">04</span><span class="t">Test por temas</span>
+        <span class="d">124 preguntas repartidas en 7 bloques para repaso dirigido.</span>
       </button>
       <button class="tile" onclick="go('ref')">
-        <span class="ico">04</span><span class="t">Fórmulas</span>
+        <span class="ico">05</span><span class="t">Fórmulas</span>
         <span class="d">Glosario de ratios, perfiles de inversión y el caso del curso.</span>
       </button>
     </div>
@@ -310,10 +340,18 @@ nav.tabs button.on{color:var(--amber)}
     </div>
   </section>
 
-  <!-- FLASHCARDS -->
-  <section id="flash" class="view">
+  <!-- SELECTOR DE MAZOS -->
+  <section id="flashpick" class="view">
     <button class="back" onclick="go('home')">‹ Inicio</button>
     <h2 class="section">Flashcards</h2>
+    <p class="lead">Repasa todas las tarjetas o elige un tema concreto.</p>
+    <div class="tqlist" id="fdlist"></div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section id="flash" class="view">
+    <button class="back" onclick="openFlashPicker()">‹ Mazos</button>
+    <div class="q-label" id="fc-label">Todas las tarjetas</div>
     <div class="fc-stage">
       <div class="fc" id="fc" onclick="flipCard()">
         <div class="fc-face fc-front">
@@ -339,6 +377,7 @@ nav.tabs button.on{color:var(--amber)}
   <!-- QUIZ -->
   <section id="quiz" class="view">
     <button class="back" onclick="go('home')">‹ Salir del examen</button>
+    <div class="q-label" id="q-label">Examen general</div>
     <div class="quizbar">
       <div class="progress"><div id="q-prog"></div></div>
       <span class="meta" id="q-meta">1/72</span>
@@ -354,6 +393,14 @@ nav.tabs button.on{color:var(--amber)}
     </div>
   </section>
 
+  <!-- SELECCIÓN TEST POR TEMA -->
+  <section id="temaquiz" class="view">
+    <button class="back" onclick="go('home')">‹ Inicio</button>
+    <h2 class="section">Test por temas</h2>
+    <p class="lead">Elige un bloque para practicar solo ese contenido. Estos tests no afectan a la nota del examen general.</p>
+    <div class="tqlist" id="tqlist"></div>
+  </section>
+
   <!-- RESULTADO -->
   <section id="result" class="view">
     <h2 class="section">Resultado del examen</h2>
@@ -365,7 +412,7 @@ nav.tabs button.on{color:var(--amber)}
     </div>
     <div class="navrow">
       <button class="btn ghost" onclick="go('home')">Inicio</button>
-      <button class="btn primary" onclick="startQuiz()">Repetir examen</button>
+      <button class="btn primary" id="r-repeat" onclick="startQuiz()">Repetir examen</button>
     </div>
   </section>
 
@@ -386,8 +433,9 @@ nav.tabs button.on{color:var(--amber)}
 <nav class="tabs" id="tabs">
   <button data-tab="home" class="on" onclick="go('home')"><span class="gl">◳</span>Inicio</button>
   <button data-tab="temas" onclick="go('temas')"><span class="gl">≣</span>Temario</button>
-  <button data-tab="flash" onclick="startFlash()"><span class="gl">⊞</span>Cards</button>
+  <button data-tab="flash" onclick="openFlashPicker()"><span class="gl">⊞</span>Cards</button>
   <button data-tab="quiz" onclick="startQuiz()"><span class="gl">✓</span>Examen</button>
+  <button data-tab="temaquiz" onclick="openTemaQuiz()"><span class="gl">◑</span>Temas</button>
   <button data-tab="ref" onclick="go('ref')"><span class="gl">∑</span>Fórmulas</button>
 </nav>
 
@@ -765,51 +813,51 @@ const PERFILES = [
 // FLASHCARDS — concepto → definición
 // ============================================================
 const FLASHCARDS = [
-  { c: "ERV (Estimated Rental Value)", d: "Valor de renta de mercado. La renta que paga el inquilino no tiene por qué coincidir con él." },
-  { c: "Renta por encima del ERV", d: "Riesgo de renta potencial: al expirar contratos los ingresos bajan; posible amenaza de terminación anticipada." },
-  { c: "Renta por debajo del ERV", d: "Oportunidad de incrementar ingresos actualizando a precios de mercado y mejorar la rentabilidad." },
-  { c: "Gastos reembolsables / Contribución a gastos", d: "Ingreso: gastos operativos que, según el contrato, asume el inquilino (seguros, gestión...)." },
-  { c: "Gastos operativos", d: "Gastos de la operativa diaria: gestión, seguros, impuestos, suministros. Recurrentes." },
-  { c: "Gastos de capital (CapEx)", d: "Gastos que mejoran/mantienen el estado físico y el valor del inmueble. No recurrentes." },
-  { c: "Mejoras a inquilinos", d: "CapEx específico a petición de un inquilino (A/C, cocina...). Pueden aportar valor solo a ese inquilino." },
-  { c: "Comisiones de alquiler", d: "Tasas a agentes por intermediar en contratos. Suelen ser un % de la renta. Solo al firmar/renovar." },
-  { c: "NOI (Ingresos Operativos Netos)", d: "Ingresos del alquiler + gastos recuperables − gastos operativos." },
-  { c: "Margen sobre NOI (Bruto a Neto)", d: "NOI / Ingresos brutos. Mide eficiencia operativa. Mayor con Triple Net que con Single Net." },
-  { c: "Flujo de Caja de Operaciones", d: "NOI − gastos de capital − mejoras a inquilinos − comisiones de alquiler (NOI ajustado)." },
-  { c: "Apalancamiento financiero", d: "Uso de deuda. Reduce capital propio y puede mejorar la rentabilidad, pero amplifica pérdidas si se usa mal." },
-  { c: "LTV (Loan to Value)", d: "Principal del préstamo como % sobre el valor o precio de la propiedad." },
-  { c: "Servicio de la deuda", d: "Efectivo para pagar intereses + amortizar principal en un periodo." },
-  { c: "Pago balloon (bullet)", d: "Préstamo que no amortiza (o muy poco) durante su vida y termina con un gran pago global final." },
-  { c: "Tipo de interés variable", d: "Tipo base (Euribor/Libor) + margen fijado por el banco según su coste de financiación y el riesgo." },
-  { c: "Debt Yield", d: "NOI / Principal del préstamo. Ratio de solvencia." },
-  { c: "ICR (Interest Coverage Ratio)", d: "NOI / Gasto por interés. Veces que el NOI cubre los intereses." },
-  { c: "DSCR (Debt Service Coverage Ratio)", d: "NOI / Servicio de la deuda (interés + amortización)." },
-  { c: "Apalancamiento negativo", d: "Cuando el coste de la deuda (tipo de interés) supera la rentabilidad de la propiedad." },
-  { c: "Gross Initial Yield", d: "Rentabilidad Inicial Bruta = NOI en adquisición / Valor Bruto." },
-  { c: "Net Initial Yield", d: "Rentabilidad Inicial Neta = NOI en adquisición / Valor Neto (valor + costes de adquisición)." },
-  { c: "Cap Rate (Tasa de Capitalización)", d: "NOI estimado a la salida / Valor estimado. Valor = NOI / Cap Rate de mercado." },
-  { c: "Yield on Cost", d: "NOI / Coste total. En adquisición = Net Initial Yield; cambia con vacancia o revisiones de renta." },
-  { c: "Reversionary Yield", d: "ERV / Valor Bruto. Mide el potencial de mejora de la renta hacia mercado." },
-  { c: "TIR (IRR)", d: "Tasa de descuento que hace el VAN de los flujos = 0. Da la tasa de retorno anual. Tiene en cuenta el valor del dinero en el tiempo." },
-  { c: "TIR.NO.PER", d: "Versión de la TIR que ajusta por las fechas reales de los flujos. Recomendada siempre." },
-  { c: "Múltiplo de Capital", d: "Distribuciones / Capital invertido. Beneficio total; NO considera el valor del dinero en el tiempo." },
-  { c: "VAN (Valor Actual Neto)", d: "Suma de cobros y pagos actualizados a la fecha de inicio aplicando una tasa de descuento." },
-  { c: "Triple Net (NNN)", d: "El inquilino asume todos los gastos operativos: impuestos, seguro y mantenimiento." },
-  { c: "Double Net (NN)", d: "El inquilino asume dos de esos gastos (p. ej. impuestos + seguro)." },
-  { c: "Single Net (N)", d: "El inquilino asume uno solo: impuestos, o seguro, o mantenimiento." },
-  { c: "Retornos apalancados", d: "TIR y Múltiplo de Capital que incluyen el efecto de la financiación." },
-  { c: "Retornos no apalancados", d: "TIR y Múltiplo de Capital sin financiación. Muestran la rentabilidad real del inmueble en sí." },
-  { c: "Efecto amplificador del apalancamiento", d: "Si el proyecto es bueno la deuda lo mejora; si es malo lo empeora (añade coste de intereses)." },
-  { c: "Reserva estructural", d: "Provisión anual para CapEx (una hucha), evita aportaciones extraordinarias de capital." },
-  { c: "Tabla de sensibilidad", d: "Analiza el riesgo de variables clave. Principal: la cap rate. En Excel: Datos → Análisis de Hipótesis → Tabla de datos." },
-  { c: "FECHA.MES", d: "Fórmula de Excel para crear fechas a partir de una inicial y un nº de meses (años × 12)." },
-  { c: "ÍNDICE + COINCIDIR", d: "Combinación usada para traer el NOI del año de venta de forma dinámica al calcular el precio de venta." },
-  { c: "Perfil Core", d: "Ingreso estable, riesgo mínimo. TIR 7–10%, deuda 40–45%." },
-  { c: "Perfil Core Plus", d: "Mejoras pequeñas para subir flujos. TIR 8–10%, deuda 45–60%." },
-  { c: "Perfil Value-Add", d: "Potencial alto al resolver problemas; gestión activa. TIR 11–15%, deuda 60–75%." },
-  { c: "Perfil Opportunistic", d: "El más arriesgado; financiación agresiva. TIR >20%, deuda >70%." },
-  { c: "Arte vs ciencia del análisis", d: "Ciencia = modelo y cálculos. Arte = conocimiento de mercado para formular hipótesis realistas." },
-  { c: "Densidad del solar", d: "Ratio de edificación sobre el solar. Relevante en inmuebles logísticos (60% en el caso)." }
+  { c: "ERV (Estimated Rental Value)", d: "Valor de renta de mercado. La renta que paga el inquilino no tiene por qué coincidir con él.", cat: "flujo" },
+  { c: "Renta por encima del ERV", d: "Riesgo de renta potencial: al expirar contratos los ingresos bajan; posible amenaza de terminación anticipada.", cat: "flujo" },
+  { c: "Renta por debajo del ERV", d: "Oportunidad de incrementar ingresos actualizando a precios de mercado y mejorar la rentabilidad.", cat: "flujo" },
+  { c: "Gastos reembolsables / Contribución a gastos", d: "Ingreso: gastos operativos que, según el contrato, asume el inquilino (seguros, gestión...).", cat: "flujo" },
+  { c: "Gastos operativos", d: "Gastos de la operativa diaria: gestión, seguros, impuestos, suministros. Recurrentes.", cat: "flujo" },
+  { c: "Gastos de capital (CapEx)", d: "Gastos que mejoran/mantienen el estado físico y el valor del inmueble. No recurrentes.", cat: "flujo" },
+  { c: "Mejoras a inquilinos", d: "CapEx específico a petición de un inquilino (A/C, cocina...). Pueden aportar valor solo a ese inquilino.", cat: "flujo" },
+  { c: "Comisiones de alquiler", d: "Tasas a agentes por intermediar en contratos. Suelen ser un % de la renta. Solo al firmar/renovar.", cat: "flujo" },
+  { c: "NOI (Ingresos Operativos Netos)", d: "Ingresos del alquiler + gastos recuperables − gastos operativos.", cat: "flujo" },
+  { c: "Margen sobre NOI (Bruto a Neto)", d: "NOI / Ingresos brutos. Mide eficiencia operativa. Mayor con Triple Net que con Single Net.", cat: "flujo" },
+  { c: "Flujo de Caja de Operaciones", d: "NOI − gastos de capital − mejoras a inquilinos − comisiones de alquiler (NOI ajustado).", cat: "flujo" },
+  { c: "Apalancamiento financiero", d: "Uso de deuda. Reduce capital propio y puede mejorar la rentabilidad, pero amplifica pérdidas si se usa mal.", cat: "financiacion" },
+  { c: "LTV (Loan to Value)", d: "Principal del préstamo como % sobre el valor o precio de la propiedad.", cat: "financiacion" },
+  { c: "Servicio de la deuda", d: "Efectivo para pagar intereses + amortizar principal en un periodo.", cat: "financiacion" },
+  { c: "Pago balloon (bullet)", d: "Préstamo que no amortiza (o muy poco) durante su vida y termina con un gran pago global final.", cat: "financiacion" },
+  { c: "Tipo de interés variable", d: "Tipo base (Euribor/Libor) + margen fijado por el banco según su coste de financiación y el riesgo.", cat: "financiacion" },
+  { c: "Debt Yield", d: "NOI / Principal del préstamo. Ratio de solvencia.", cat: "financiacion" },
+  { c: "ICR (Interest Coverage Ratio)", d: "NOI / Gasto por interés. Veces que el NOI cubre los intereses.", cat: "financiacion" },
+  { c: "DSCR (Debt Service Coverage Ratio)", d: "NOI / Servicio de la deuda (interés + amortización).", cat: "financiacion" },
+  { c: "Apalancamiento negativo", d: "Cuando el coste de la deuda (tipo de interés) supera la rentabilidad de la propiedad.", cat: "financiacion" },
+  { c: "Gross Initial Yield", d: "Rentabilidad Inicial Bruta = NOI en adquisición / Valor Bruto.", cat: "rentabilidad" },
+  { c: "Net Initial Yield", d: "Rentabilidad Inicial Neta = NOI en adquisición / Valor Neto (valor + costes de adquisición).", cat: "rentabilidad" },
+  { c: "Cap Rate (Tasa de Capitalización)", d: "NOI estimado a la salida / Valor estimado. Valor = NOI / Cap Rate de mercado.", cat: "rentabilidad" },
+  { c: "Yield on Cost", d: "NOI / Coste total. En adquisición = Net Initial Yield; cambia con vacancia o revisiones de renta.", cat: "rentabilidad" },
+  { c: "Reversionary Yield", d: "ERV / Valor Bruto. Mide el potencial de mejora de la renta hacia mercado.", cat: "rentabilidad" },
+  { c: "TIR (IRR)", d: "Tasa de descuento que hace el VAN de los flujos = 0. Da la tasa de retorno anual. Tiene en cuenta el valor del dinero en el tiempo.", cat: "rentabilidad" },
+  { c: "TIR.NO.PER", d: "Versión de la TIR que ajusta por las fechas reales de los flujos. Recomendada siempre.", cat: "rentabilidad" },
+  { c: "Múltiplo de Capital", d: "Distribuciones / Capital invertido. Beneficio total; NO considera el valor del dinero en el tiempo.", cat: "rentabilidad" },
+  { c: "VAN (Valor Actual Neto)", d: "Suma de cobros y pagos actualizados a la fecha de inicio aplicando una tasa de descuento.", cat: "rentabilidad" },
+  { c: "Triple Net (NNN)", d: "El inquilino asume todos los gastos operativos: impuestos, seguro y mantenimiento.", cat: "contratos" },
+  { c: "Double Net (NN)", d: "El inquilino asume dos de esos gastos (p. ej. impuestos + seguro).", cat: "contratos" },
+  { c: "Single Net (N)", d: "El inquilino asume uno solo: impuestos, o seguro, o mantenimiento.", cat: "contratos" },
+  { c: "Retornos apalancados", d: "TIR y Múltiplo de Capital que incluyen el efecto de la financiación.", cat: "rentabilidad" },
+  { c: "Retornos no apalancados", d: "TIR y Múltiplo de Capital sin financiación. Muestran la rentabilidad real del inmueble en sí.", cat: "rentabilidad" },
+  { c: "Efecto amplificador del apalancamiento", d: "Si el proyecto es bueno la deuda lo mejora; si es malo lo empeora (añade coste de intereses).", cat: "rentabilidad" },
+  { c: "Reserva estructural", d: "Provisión anual para CapEx (una hucha), evita aportaciones extraordinarias de capital.", cat: "hipotesis" },
+  { c: "Tabla de sensibilidad", d: "Analiza el riesgo de variables clave. Principal: la cap rate. En Excel: Datos → Análisis de Hipótesis → Tabla de datos.", cat: "resultados" },
+  { c: "FECHA.MES", d: "Fórmula de Excel para crear fechas a partir de una inicial y un nº de meses (años × 12).", cat: "hipotesis" },
+  { c: "ÍNDICE + COINCIDIR", d: "Combinación usada para traer el NOI del año de venta de forma dinámica al calcular el precio de venta.", cat: "hipotesis" },
+  { c: "Perfil Core", d: "Ingreso estable, riesgo mínimo. TIR 7–10%, deuda 40–45%.", cat: "perfiles" },
+  { c: "Perfil Core Plus", d: "Mejoras pequeñas para subir flujos. TIR 8–10%, deuda 45–60%.", cat: "perfiles" },
+  { c: "Perfil Value-Add", d: "Potencial alto al resolver problemas; gestión activa. TIR 11–15%, deuda 60–75%.", cat: "perfiles" },
+  { c: "Perfil Opportunistic", d: "El más arriesgado; financiación agresiva. TIR >20%, deuda >70%.", cat: "perfiles" },
+  { c: "Arte vs ciencia del análisis", d: "Ciencia = modelo y cálculos. Arte = conocimiento de mercado para formular hipótesis realistas.", cat: "perfiles" },
+  { c: "Densidad del solar", d: "Ratio de edificación sobre el solar. Relevante en inmuebles logísticos (60% en el caso).", cat: "hipotesis" },
 ];
 
 // ============================================================
@@ -892,6 +940,211 @@ const TEST = [
 
 </script>
 <script>
+// ============================================================
+// TESTS POR TEMA — bancos ampliados por bloque temático
+// Cada bloque agrupa varios capítulos relacionados.
+// Formato: {q, o:[4 opciones], a:índice correcto, e:explicación}
+// ============================================================
+
+const TEST_TEMAS = [
+
+// ---------- BLOQUE 1 ----------
+{
+  id: "flujo",
+  titulo: "Flujo de caja y NOI",
+  caps: "Temas 3, 11, 12, 13",
+  desc: "Entradas y salidas, NOI, margen y flujo de caja de operaciones.",
+  preguntas: [
+    { q: "¿Cuáles son las dos entradas de efectivo en el flujo de caja?", o:["Gastos operativos y de capital","Ingresos del alquiler y gastos reembolsables","NOI y servicio de la deuda","Comisiones y mejoras a inquilinos"], a:1, e:"Las entradas son los ingresos del alquiler (brutos) y los gastos reembolsables / contribución a gastos." },
+    { q: "El modelo se divide en tres secciones. ¿Cuáles?", o:["Compra, venta y deuda","Hipótesis, Flujos de Caja y Resultados","Ingresos, gastos y ratios","Adquisición, operación y desinversión"], a:1, e:"Hipótesis (info básica), Flujos de Caja (cómo genera/consume efectivo) y Resultados (rentabilidad y riesgos)." },
+    { q: "Los gastos reembolsables se consideran:", o:["Una salida de efectivo","Un tipo de ingreso","Un gasto de capital","Parte del servicio de la deuda"], a:1, e:"Son un ingreso: gastos operativos que, según el contrato, asume el inquilino (seguros, gestión, etc.)." },
+    { q: "¿Qué fórmula da el NOI?", o:["Ingresos − gastos de capital","Ingresos del alquiler + gastos recuperables − gastos operativos","Ingresos − servicio de la deuda","Ingresos brutos × margen"], a:1, e:"NOI = ingresos del alquiler + gastos recuperables − gastos operativos." },
+    { q: "El Flujo de Caja de Operaciones (NOI ajustado) se obtiene:", o:["Sumando el servicio de la deuda al NOI","Restando al NOI los gastos de capital, mejoras a inquilinos y comisiones de alquiler","Dividiendo el NOI por la cap rate","Restando los impuestos al NOI"], a:1, e:"Es el NOI menos los gastos no recurrentes (CapEx, mejoras a inquilinos y comisiones de alquiler)." },
+    { q: "El margen sobre NOI (Bruto a Neto) se calcula como:", o:["NOI / ingresos brutos del alquiler","Ingresos brutos / NOI","NOI / valor del inmueble","Gastos operativos / NOI"], a:0, e:"Mide la eficiencia operativa: qué parte del bruto queda tras los gastos operativos." },
+    { q: "El margen Bruto a Neto también se conoce como:", o:["Spread","Gross to Net o Leakage","Cap rate","Yield on cost"], a:1, e:"En inglés se denomina 'Gross to Net' o 'Leakage'." },
+    { q: "¿Con qué contrato será MAYOR el margen Bruto a Neto?", o:["Single Net","Double Net","Triple Net","No depende del contrato"], a:2, e:"En Triple Net el inquilino asume todos los gastos, dejando más margen al propietario." },
+    { q: "Los gastos de capital, comisiones de alquiler y mejoras a inquilinos son:", o:["Recurrentes","No recurrentes","Siempre reembolsables","Ingresos"], a:1, e:"A diferencia de los gastos operativos (recurrentes), estos son no recurrentes." },
+    { q: "Las mejoras a inquilinos son un tipo específico de:", o:["Gastos operativos","Gastos de capital","Comisiones de alquiler","Gastos reembolsables"], a:1, e:"Son CapEx a petición del inquilino; se separan para analizar la rentabilidad de cada contrato." },
+    { q: "¿Por qué se separan las mejoras a inquilinos del resto de CapEx?", o:["Porque son más caras","Porque no son esenciales para el uso del edificio y permiten analizar la rentabilidad por inquilino","Porque las paga el banco","Porque son recurrentes"], a:1, e:"No son esenciales para la funcionalidad del edificio; separarlas ayuda a analizar cada contrato." },
+    { q: "Las comisiones de alquiler se originan:", o:["Cada mes","Solo al firmar un nuevo alquiler o renovar uno existente","Al vender el inmueble","Al pedir el préstamo"], a:1, e:"Solo surgen cuando se firma o renueva un contrato de alquiler." },
+    { q: "Con un solo inquilino, los Ingresos Brutos del Alquiler son:", o:["La media del mercado","La renta que paga ese inquilino","El ERV","El NOI"], a:1, e:"Con un inquilino = su renta. Con varios, se suman las filas de cada inquilino." },
+    { q: "Para ajustar los ingresos al calendario de fechas se usa la combinación:", o:["ÍNDICE y COINCIDIR","SI e Y","PAGO y PAGOINT","SUMA y BUSCARV"], a:1, e:"SI e Y fijan las fechas de posesión y la duración del alquiler." },
+    { q: "Para las salidas de efectivo, el material recomienda:", o:["Ponerlas en positivo y restarlas","Ponerlas en negativo (en rojo) y sumarlas","No incluirlas","Ponerlas en otra hoja"], a:1, e:"Negativos en rojo resaltan visualmente que son salidas de dinero." },
+    { q: "En el modelo mensual, el ingreso anual de alquiler se convierte a mensual:", o:["Multiplicándolo por 12","Dividiéndolo entre 12","Aplicando el IPC","Restando los gastos"], a:1, e:"Se divide el ingreso anual entre 12 para obtener el mensual." },
+    { q: "La actualización de la renta en el modelo se hace conforme a:", o:["El Euribor","El IPC","La cap rate","El LTV"], a:1, e:"La renta se actualiza según el IPC; la fórmula se incrementa con los años." },
+    { q: "Para los gastos de capital con reserva, el cálculo mensual es:", o:["% × precio de adquisición / 12","% × NOI","% × valor de venta × 12","% × préstamo vivo"], a:0, e:"Se multiplica el % por el precio de adquisición y se divide entre 12." },
+    { q: "Si un inmueble Triple Net tiene un margen Bruto a Neto inferior al de inmuebles similares:", o:["Está rindiendo mejor de lo normal","Está rindiendo por debajo de lo normal","Tiene apalancamiento negativo","Tiene mayor cap rate"], a:1, e:"Indica que la propiedad genera un rendimiento inferior al de comparables del mismo mercado." },
+    { q: "El margen Bruto a Neto es útil sobre todo para:", o:["Calcular el LTV","Comparar propiedades similares y medir eficiencia","Estimar la TIR","Fijar el tipo de interés"], a:1, e:"Mide eficiencia operativa y sirve para comparar inmuebles parecidos." }
+  ]
+},
+
+// ---------- BLOQUE 2 ----------
+{
+  id: "financiacion",
+  titulo: "Financiación y deuda",
+  caps: "Temas 4, 8, 14, 15, 16",
+  desc: "Apalancamiento, LTV, intereses, amortización y covenants.",
+  preguntas: [
+    { q: "Una ventaja de la financiación para el inversor es:", o:["La garantía hipotecaria","Reducir el capital propio requerido y, vía apalancamiento, mejorar la rentabilidad","El ingreso del alquiler para el banco","Aumentar los gastos operativos"], a:1, e:"La deuda reduce el capital propio y puede mejorar la rentabilidad por apalancamiento." },
+    { q: "¿Por qué los bancos favorecen financiar inmuebles?", o:["Porque no piden garantías","Porque el préstamo está garantizado por un activo que retiene valor y genera ingreso casi fijo","Porque no cobran intereses","Porque el riesgo es nulo"], a:1, e:"Activo que retiene valor + ingreso fijo/casi fijo para pagar intereses y amortización." },
+    { q: "El LTV (Loan to Value) se define como:", o:["NOI / principal","Principal del préstamo como % del valor de la propiedad","Gasto por interés / NOI","Servicio de la deuda / NOI"], a:1, e:"Es el porcentaje del valor de la propiedad financiado con deuda." },
+    { q: "Un tipo de interés variable se compone de:", o:["Solo el Euribor","Tipo base (Euribor/Libor) + margen","Solo el margen","Cap rate + margen"], a:1, e:"El coste = tipo base + margen, fijado por el banco según riesgo y su coste de financiación." },
+    { q: "El servicio de la deuda incluye:", o:["Solo intereses","Solo amortización","Intereses + amortización del principal","Comisión de apertura"], a:2, e:"Es el efectivo para pagar intereses y amortizar principal en un periodo." },
+    { q: "Un pago 'balloon' (bullet) significa:", o:["Amortización lineal anual","Carencia solo de intereses","Un gran pago global del principal al final del término","Pago anticipado obligatorio"], a:2, e:"El principal se devuelve íntegro (o casi) al vencimiento." },
+    { q: "Un préstamo a 20 años con amortización lineal se amortiza a un ritmo anual del:", o:["2%","5%","10%","20%"], a:1, e:"100% / 20 años = 5% anual." },
+    { q: "El Debt Yield se calcula como:", o:["NOI / gasto por interés","NOI / principal del préstamo","NOI / servicio de la deuda","Principal / NOI"], a:1, e:"Debt Yield = NOI / principal del préstamo." },
+    { q: "El ICR (Interest Coverage Ratio) es:", o:["NOI / gasto por interés","NOI / principal","NOI / servicio de la deuda","Interés / NOI"], a:0, e:"Indica cuántas veces el NOI cubre los intereses." },
+    { q: "El DSCR (Cobertura del Servicio de Deuda) compara el NOI con:", o:["Solo los intereses","El principal","El servicio de la deuda (interés + amortización)","El valor del inmueble"], a:2, e:"DSCR = NOI / servicio de la deuda." },
+    { q: "¿Cuándo hay apalancamiento negativo?", o:["Cuando el LTV supera el 70%","Cuando el coste de la deuda supera la rentabilidad de la propiedad","Cuando hay vacancia","Cuando el balloon es del 100%"], a:1, e:"Si el tipo de interés es mayor que la rentabilidad, el apalancamiento no es positivo." },
+    { q: "Si el inmueble pierde valor DURANTE la vida del préstamo, el banco probablemente:", o:["Cancela el préstamo gratis","Pide nueva tasación y un repago parcial","Baja el tipo de interés","Aumenta el LTV"], a:1, e:"Solicita nueva tasación y repago parcial para mantener el LTV." },
+    { q: "Si la pérdida de valor ocurre AL FINALIZAR el préstamo, el riesgo es:", o:["No poder refinanciar y tener que vender a pérdidas","Que baje el Euribor","Que suba el alquiler","Que el inquilino se vaya"], a:0, e:"Puede que no refinancies y vendas a pérdidas; en el peor caso el banco va contra otros bienes." },
+    { q: "El riesgo de vacancia con deuda alta implica que:", o:["No afecta a la inversión","Es más difícil superar periodos sin alquiler porque hay que seguir pagando la deuda","Sube el NOI","Baja el tipo de interés"], a:1, e:"Sin ingresos pero con servicio de deuda, se puede incurrir en incumplimiento." },
+    { q: "La comisión de apertura del préstamo sirve para:", o:["Pagar el alquiler","Cubrir costes de gestión, valoración, abogados, administrativos","Amortizar el principal","Pagar los intereses"], a:1, e:"Los bancos la cobran para cubrir esa clase de costes iniciales." },
+    { q: "¿Por qué se evita usar PAGO/PAGOINT en el método del curso?", o:["Porque son más lentas","Porque dan problemas con carencias, bullets o calendarios escalonados","Porque no existen","Porque no calculan intereses"], a:1, e:"El método manual con pasos intermedios es más robusto ante esos casos." },
+    { q: "El consejo 'en Excel las filas son gratis' significa:", o:["No usar fórmulas","Añadir pasos intermedios para simplificar fórmulas y evitar errores","Borrar filas vacías","Usar solo PAGO"], a:1, e:"Simplificar con pasos intermedios ahorra tiempo y previene errores." },
+    { q: "El Préstamo Vivo se calcula como:", o:["Dispuesto − amortizado","Préstamo vivo anterior + dispuesto − amortizado","Principal × interés","NOI / servicio"], a:1, e:"Va variando al devolver el préstamo poco a poco." },
+    { q: "El gasto de intereses mensual se calcula:", o:["Préstamo vivo anterior × (tipo base + margen) / 12","Principal × margen","NOI / 12","Préstamo vivo × cap rate"], a:0, e:"Sobre el préstamo vivo del periodo anterior, dividido entre 12." },
+    { q: "El Flujo de Caja de Financiación suma todas las filas EXCEPTO:", o:["El gasto de intereses","La amortización","El Préstamo Vivo","La comisión de apertura"], a:2, e:"El Préstamo Vivo es un saldo, no un flujo de caja." },
+    { q: "El Flujo de Caja Después de Financiación es:", o:["FC de Operaciones + FC de Financiación","NOI − servicio de la deuda","FC de Inversión + FC de Desinversión","NOI ajustado − impuestos"], a:0, e:"Suma del flujo operativo y el de financiación." },
+    { q: "Los bancos suelen calcular los covenants para:", o:["Un solo mes","Los próximos 12 meses","Todo el periodo de tenencia","Solo el año de venta"], a:1, e:"Calculan los ratios sobre los próximos 12 meses, lo que cambia las fórmulas." },
+    { q: "¿Por qué cae mucho el DSCR cerca del fin del término del préstamo?", o:["Porque sube el NOI","Porque se incluye la amortización en el servicio de la deuda","Porque baja el interés","Porque desaparece el préstamo vivo"], a:1, e:"Al acercarse el vencimiento se añade la amortización, disminuyendo el ratio." },
+    { q: "Conviene añadir los covenants al modelo aunque nadie los pida porque:", o:["Lo exige la ley","Sueles construir el modelo antes de hablar con el banco y así sabes qué ratios genera el inmueble","Reducen los impuestos","Aumentan el LTV"], a:1, e:"Permite negociar un mínimo con margen de seguridad antes de hablar con el banco." }
+  ]
+},
+
+// ---------- BLOQUE 3 ----------
+{
+  id: "rentabilidad",
+  titulo: "Rentabilidad y retornos",
+  caps: "Temas 5, 18, 19",
+  desc: "Yields, cap rate, TIR, múltiplo y retornos apalancados/no apalancados.",
+  preguntas: [
+    { q: "La Rentabilidad Inicial Bruta (Gross Initial Yield) es:", o:["NOI en adquisición / Valor Neto","NOI en adquisición / Valor Bruto","ERV / Valor Bruto","NOI a la salida / Valor estimado"], a:1, e:"Valor Bruto = sin costes de adquisición." },
+    { q: "La Rentabilidad Inicial Neta usa en el denominador:", o:["El valor bruto","El valor + costes de adquisición","El ERV","El precio de venta"], a:1, e:"Net Initial Yield = NOI / (valor + costes de adquisición)." },
+    { q: "La Tasa de Capitalización (Cap Rate / Exit Yield) es:", o:["NOI estimado a la salida / Valor estimado","ERV / Valor Bruto","NOI / coste","Distribuciones / capital"], a:0, e:"Se usa para estimar valor: Valor = NOI / Cap Rate de mercado." },
+    { q: "El valor de un inmueble por cap rate se estima como:", o:["NOI × Cap Rate","NOI / Cap Rate de mercado","Cap Rate / NOI","ERV × Cap Rate"], a:1, e:"Valor = NOI / Cap Rate de mercado." },
+    { q: "La Yield on Cost (Rentabilidad sobre Coste) es:", o:["NOI / valor bruto","NOI / coste total de adquisición o desarrollo","ERV / coste","NOI / cap rate"], a:1, e:"En adquisición coincide con la Net Initial Yield; luego cambia con vacancia o revisiones." },
+    { q: "La Yield on Cost en el momento de adquisición es igual a:", o:["La Rentabilidad Inicial Bruta","La Rentabilidad Inicial Neta","La cap rate de salida","El múltiplo de capital"], a:1, e:"En adquisición coincide con la Net Initial Yield." },
+    { q: "La Rentabilidad Reversionaria (Reversionary Yield) es:", o:["NOI / Valor Bruto","ERV / Valor Bruto","NOI / Coste","Distribuciones / Capital"], a:1, e:"Compara la renta de mercado (ERV) con el valor bruto: mide el potencial de mejora." },
+    { q: "La definición de TIR es:", o:["NOI / valor","Distribuciones / capital","Tasa de descuento que hace el VAN de los flujos igual a cero","Tipo base + margen"], a:2, e:"Da la tasa de rentabilidad anual del proyecto." },
+    { q: "La principal ventaja de la TIR sobre otras medidas es que:", o:["Es más fácil de calcular","Tiene en cuenta el valor del dinero en el tiempo","No depende de los flujos","Ignora las fechas"], a:1, e:"100€ hoy no valen lo mismo que 100€ en 10 años." },
+    { q: "¿Por qué usar TIR.NO.PER frente a TIR en Excel?", o:["Porque ignora las fechas","Porque ajusta el cálculo según las fechas reales de los flujos","Porque solo sirve para flujos anuales","Porque calcula el múltiplo"], a:1, e:"Con periodos desiguales o flujos sub-anuales, tiene en cuenta cuándo se generan." },
+    { q: "El Múltiplo de Capital se calcula como:", o:["Distribuciones / Capital invertido","NOI / Cap Rate","Capital / Distribuciones","TIR × años"], a:0, e:"Muestra el beneficio total respecto a lo invertido." },
+    { q: "A diferencia de la TIR, el Múltiplo de Capital:", o:["Tiene en cuenta el valor del dinero en el tiempo","NO tiene en cuenta el valor del dinero en el tiempo","Solo se usa con deuda","Da una tasa anual"], a:1, e:"Muestra el retorno total sin considerar el tiempo necesario para obtenerlo." },
+    { q: "El VAN (Valor Actual Neto) se calcula:", o:["Sumando los flujos sin ajustar","Actualizando todos los cobros y pagos a la fecha de inicio con una tasa de descuento","Dividiendo el NOI por la cap rate","Multiplicando distribuciones por capital"], a:1, e:"Aplica una tasa de descuento para llevar los flujos a la fecha de comienzo." },
+    { q: "El análisis de rentabilidad de todo el periodo de tenencia, a diferencia del anual, tiene en cuenta:", o:["Solo los ingresos","También la variación del valor del inmueble","Solo los gastos","Solo el LTV"], a:1, e:"Considera ingresos y la apreciación/depreciación del inmueble durante la tenencia." },
+    { q: "Los retornos apalancados son los que:", o:["Excluyen la financiación","Incluyen el efecto de la financiación","Solo usan el NOI","Ignoran la venta"], a:1, e:"TIR y Múltiplo de Capital calculados con financiación." },
+    { q: "¿Por qué se calculan también los retornos no apalancados?", o:["Para reducir impuestos","Para ver la rentabilidad real del inmueble sin el efecto amplificador de la deuda","Porque lo exige el banco","Para calcular el LTV"], a:1, e:"El apalancamiento esconde la rentabilidad real de la inversión." },
+    { q: "El FC No Apalancado Antes de Impuestos se calcula:", o:["FC Operaciones + FC Inversión + FC Desinversión (excluyendo devolución del préstamo y comisiones de cancelación)","FC Después de Financiación + intereses","NOI + cap rate","FC Operaciones − impuestos"], a:0, e:"Hay que excluir de la desinversión la devolución del préstamo y las comisiones de cancelación." },
+    { q: "La diferencia entre el FC Antes de Impuestos y el No Apalancado es básicamente:", o:["Los impuestos","La financiación","La cap rate","El alquiler"], a:1, e:"Es justo lo que se quiere aislar: el efecto de la deuda." },
+    { q: "El efecto amplificador del apalancamiento significa que:", o:["Siempre mejora el proyecto","Si el proyecto es bueno lo mejora, y si es malo lo empeora","Solo afecta a los impuestos","Reduce la cap rate"], a:1, e:"La deuda amplifica el resultado en ambos sentidos." },
+    { q: "Otras medidas de rentabilidad citadas (no calculadas en el caso) son:", o:["Cap rate y LTV","Efectivo sobre Efectivo (Cash on Cash) y Capital Máximo","NOI y margen","ERV y reversionary"], a:1, e:"El material las referencia entre los recursos del curso." }
+  ]
+},
+
+// ---------- BLOQUE 4 ----------
+{
+  id: "contratos",
+  titulo: "Contratos de alquiler",
+  caps: "Tema 7 (tipos de contrato)",
+  desc: "Single, Double y Triple Net: qué asume el inquilino.",
+  preguntas: [
+    { q: "En un contrato Triple Net (NNN), el inquilino asume:", o:["Solo los impuestos","Impuestos, seguro del inmueble y mantenimiento","Solo el mantenimiento","Ningún gasto"], a:1, e:"En NNN el inquilino asume todos los gastos operativos." },
+    { q: "En un contrato Double Net (NN), el inquilino asume:", o:["Todos los gastos","Dos de los gastos (p. ej. impuestos + seguro)","Uno solo","Ninguno"], a:1, e:"Asume dos de los tres: impuestos+seguro, mantenimiento+seguro o impuestos+mantenimiento." },
+    { q: "En un contrato Single Net (N), el inquilino asume:", o:["Todos los gastos","Dos gastos","Uno solo (impuestos, o seguro, o mantenimiento)","Ninguno"], a:2, e:"Asume únicamente uno de los gastos operativos." },
+    { q: "En un Triple Net, ¿qué gasto puede seguir asumiendo el propietario?", o:["Los impuestos","El seguro","Las tasas de gestión si contrata un gestor externo","El mantenimiento"], a:2, e:"Solo las tasas de gestión, en caso de contratar a un gestor de la propiedad externo." },
+    { q: "Los contratos Triple Net son más comunes en:", o:["Vivienda residencial","Industrial y oficinas, especialmente en Reino Unido","Locales de lujo","Garajes"], a:1, e:"Predominan en industrial y oficinas, sobre todo en UK." },
+    { q: "En el resto de Europa (fuera de UK), los tipos de contrato:", o:["Son siempre Triple Net","Tienen más variación según el mercado y micro-mercado","Son siempre Single Net","No existen"], a:1, e:"Hay más variación dependiendo del mercado e incluso del micro-mercado." },
+    { q: "El tipo de contrato influye directamente en:", o:["El LTV","El margen Bruto a Neto","El Euribor","La fecha de adquisición"], a:1, e:"Con Triple Net el margen es mayor que con Single Net." },
+    { q: "El inquilino del caso (DHL) tiene un contrato de tipo:", o:["Single Net","Double Net","Triple Net","Sin contrato"], a:2, e:"DHL Supply Chain tiene contrato Triple Net con revisión anual conforme a IPC." },
+    { q: "¿Qué gastos incluye 'todos los gastos operativos' en un NNN?", o:["Solo suministros","Impuestos a la propiedad, seguro del inmueble y mantenimiento","Solo la gestión","Intereses del préstamo"], a:1, e:"Impuestos, seguro y mantenimiento del inmueble." },
+    { q: "Si quieres maximizar el margen del propietario, el contrato ideal es:", o:["Single Net","Double Net","Triple Net","Da igual"], a:2, e:"Triple Net traslada todos los gastos al inquilino, maximizando el margen del propietario." }
+  ]
+},
+
+// ---------- BLOQUE 5 ----------
+{
+  id: "hipotesis",
+  titulo: "Hipótesis del modelo",
+  caps: "Temas 6, 9, 10, 17",
+  desc: "Descripción, compra, venta, calendario, adquisición y desinversión.",
+  preguntas: [
+    { q: "El orden lógico para construir el modelo es:", o:["Vender, operar, comprar, endeudar","Comprar, operar, endeudar, vender","Endeudar, comprar, vender, operar","Operar, vender, comprar, endeudar"], a:1, e:"Primero compra, luego operación, después deuda y finalmente venta/salida." },
+    { q: "La descripción de la propiedad incluye, entre otros:", o:["El tipo de interés","Nombre/dirección, área alquilable, año de construcción, unidades y densidad del solar","La TIR","El múltiplo de capital"], a:1, e:"Datos básicos del inmueble; la densidad es relevante en logístico." },
+    { q: "Las hipótesis de compra incluyen:", o:["Solo el precio","Fecha de compra, precio y costes asociados (impuestos, servicios profesionales)","Solo la cap rate","Solo el LTV"], a:1, e:"La fecha de compra es el inicio del proyecto." },
+    { q: "Para calcular la fecha de venta se usa la fórmula:", o:["SUMA","FECHA.MES","BUSCARV","TIR"], a:1, e:"FECHA.MES, recordando multiplicar los años por 12 para obtener meses." },
+    { q: "El método más común para determinar el precio de venta es:", o:["El LTV","La tasa de capitalización","El Euribor","El margen Bruto a Neto"], a:1, e:"La referencia suele ser la cap rate de mercado de inmuebles similares vendidos recientemente." },
+    { q: "El valor del inmueble a la venta es:", o:["NOI del año de venta / tasa de capitalización","NOI × cap rate","Precio de compra + costes","Distribuciones / capital"], a:0, e:"Al usar el NOI del año de venta, refleja los cambios de eficiencia durante la tenencia." },
+    { q: "El modelo del caso es:", o:["Anual de fecha a fecha","Mensual","Trimestral","Semestral"], a:1, e:"Se opta por mensual por ser más sencillo." },
+    { q: "¿Por qué se prefiere alinear un modelo anual con el año natural?", o:["Por estética","Porque coincide con el ejercicio fiscal y contable","Porque lo exige Excel","Para evitar FECHA.MES"], a:1, e:"Facilita el trabajo al departamento financiero (presupuestos y proyecciones)." },
+    { q: "¿Dónde conviene colocar la columna de totales?", o:["Al final","Al principio","En otra hoja","No se usa"], a:1, e:"Al principio, para no estorbar si se alarga el periodo de tenencia." },
+    { q: "Una tenencia de 5 años en un modelo mensual equivale a:", o:["12 meses","36 meses","60 meses","120 meses"], a:2, e:"5 años × 12 = 60 meses." },
+    { q: "La segunda forma de crear valor (además de la operativa) es:", o:["La financiación","La apreciación del inmueble","Las comisiones de alquiler","La reserva estructural"], a:1, e:"Por eso se añaden las secciones de Adquisición y Desinversión." },
+    { q: "El Flujo de Caja de Inversión resulta de:", o:["NOI − gastos","La suma de los inputs de la sección de Adquisición (precio + costes, en negativo)","El precio de venta − costes","El préstamo vivo"], a:1, e:"Precio de compra + costes de adquisición, ambos en negativo." },
+    { q: "Para traer el NOI del año de venta de forma dinámica se usa:", o:["SI e Y","ÍNDICE y COINCIDIR","PAGO","BUSCARH"], a:1, e:"ÍNDICE + COINCIDIR mantiene el modelo dinámico." },
+    { q: "Un error común al calcular el precio de venta con flujos mensuales es:", o:["Olvidar dividir entre 12","Olvidar multiplicar el NOI por 12","Usar mal la cap rate","No aplicar costes"], a:1, e:"Con flujos mensuales hay que anualizar el NOI multiplicando por 12." },
+    { q: "Si se desinvierte antes de repagar el préstamo, hay que añadir:", o:["Solo la devolución","Devolución del préstamo y comisiones de amortización anticipada","Una nueva reserva","Más gastos operativos"], a:1, e:"Dos filas: devolución (= préstamo vivo del último periodo) y comisiones de cancelación." },
+    { q: "La fecha de disposición del préstamo en el caso se asume igual a:", o:["La fecha de venta","La fecha de adquisición","El fin del término","El primer pago de intereses"], a:1, e:"El caso no da fecha, así que se asume igual a la adquisición." },
+    { q: "La densidad del solar (60% en el caso) es especialmente relevante en inmuebles:", o:["Residenciales","De oficinas","Logísticos","De lujo"], a:2, e:"Por eso se incluye en la descripción del almacén logístico." },
+    { q: "En la sección de Adquisición, el precio de compra se mete:", o:["En positivo","En negativo, porque es una salida de capital","Como porcentaje","Sin signo"], a:1, e:"Es una salida de capital, por eso va en negativo (con fórmula SI)." },
+    { q: "La reserva estructural del caso es:", o:["1% de la renta","0,1% del coste de adquisición, dotada anualmente","2,5% del precio de venta","15% del alquiler"], a:1, e:"Es una provisión anual para CapEx (una hucha)." }
+  ]
+},
+
+// ---------- BLOQUE 6 ----------
+{
+  id: "resultados",
+  titulo: "Resultados y sensibilidad",
+  caps: "Temas 20, 21",
+  desc: "Resumen de resultados y tablas de sensibilidad en Excel.",
+  preguntas: [
+    { q: "El resumen de resultados es útil sobre todo para:", o:["Calcular intereses","Informes y Comités de Inversiones","Fijar el LTV","Estimar el IPC"], a:1, e:"Recoge descripción y datos clave del proyecto para documentación e informes." },
+    { q: "Se compara el NOI en adquisición con el NOI en venta para:", o:["Calcular el Euribor","Mostrar cuánto ha mejorado la eficiencia durante la tenencia","Fijar el precio de compra","Calcular el margen"], a:1, e:"Refleja la mejora de eficiencia del inmueble durante el periodo en propiedad." },
+    { q: "La diferencia entre TIR y Rentabilidad sobre Coste es que:", o:["La TIR es de un año y la Yield on Cost de toda la inversión","La TIR abarca toda la inversión y la Yield on Cost se refiere a un año","Son idénticas","La Yield on Cost incluye financiación"], a:1, e:"Por eso la Yield on Cost se calcula en adquisición y a la salida para comparar." },
+    { q: "Si alquiler y gastos crecen al mismo ritmo (inflación), la diferencia entre TIR y Yield on Cost es:", o:["Muy grande","Pequeña","Negativa","Infinita"], a:1, e:"Con vacancia o renovaciones de renta la diferencia sería mayor." },
+    { q: "En los resultados, la TIR y el Múltiplo de Capital deben mostrarse:", o:["Solo apalancados","Solo sin apalancar","Tanto apalancados como sin apalancar","Solo el primer año"], a:2, e:"Ambas versiones para comparar el efecto de la financiación." },
+    { q: "La variable con mayor incertidumbre en una tabla de sensibilidad suele ser:", o:["El LTV","La tasa de capitalización (precio de venta)","Los gastos operativos","La comisión de apertura"], a:1, e:"El precio de venta es lo más incierto; por eso la cap rate es la variable principal." },
+    { q: "La segunda variable típica de una tabla de sensibilidad es:", o:["El Euribor","El precio de adquisición o el alquiler","El año de construcción","La densidad del solar"], a:1, e:"Precio de adquisición (si no hay precio cerrado) o alquiler (si cabe renegociar)." },
+    { q: "En Excel, la tabla de sensibilidad debe construirse:", o:["En la hoja Resultados","En la misma hoja donde están las variables (Hipótesis)","En cualquier hoja","En otro libro"], a:1, e:"Excel necesita el análisis en la misma hoja de las variables; luego se enlaza a Resultados." },
+    { q: "El menú de Excel para crear la tabla es:", o:["Inicio → Estilos","Datos → Previsión → Análisis de Hipótesis → Tabla de datos","Vista → Inmovilizar","Fórmulas → Auditoría"], a:1, e:"Desde Datos → Análisis de Hipótesis → Tabla de datos." },
+    { q: "Para validar una tabla de sensibilidad se comprueba que:", o:["El múltiplo sea > 1","La TIR de la tabla coincida con la TIR del proyecto para los valores base","La cap rate sea 4,5%","El NOI sea positivo"], a:1, e:"Si coincide en el cruce de valores base, la tabla está bien construida." },
+    { q: "Para evitar que Excel vaya lento con la tabla, se activa:", o:["Cálculo manual total","'Automático excepto para tablas de datos'","Modo seguro","Inmovilizar paneles"], a:1, e:"Archivo → Opciones → Fórmulas → Opciones de Cálculo." },
+    { q: "Tras activar esa opción, para recalcular la tabla hay que pulsar:", o:["F5","F9","Esc","Intro"], a:1, e:"F9 fuerza el recálculo de la tabla de sensibilidad." },
+    { q: "Para llevar la tabla a la hoja Resultados se hace:", o:["Copiar y pegar valores","Enlaces a las celdas de la tabla en Hipótesis","Una macro","No se puede"], a:1, e:"Se crean enlaces; luego se suele esconder la tabla en Hipótesis por estética." }
+  ]
+},
+
+// ---------- BLOQUE 7 ----------
+{
+  id: "perfiles",
+  titulo: "Perfiles, recomendación y el arte",
+  caps: "Temas 22, 23",
+  desc: "Core a Opportunistic, recomendación del caso y el 'arte' del análisis.",
+  preguntas: [
+    { q: "El perfil Core se caracteriza por:", o:["TIR >20% y deuda >70%","TIR 7–10% y deuda 40–45%, ingreso estable y riesgo mínimo","Flujo inexistente con alto potencial","Financiación agresiva"], a:1, e:"Inquilinos solventes, contratos largos; alternativa a bonos." },
+    { q: "El perfil Core Plus se sitúa en:", o:["TIR 7–10%, deuda 40–45%","TIR 8–10%, deuda 45–60%","TIR 11–15%, deuda 60–75%","TIR >20%, deuda >70%"], a:1, e:"Oportunidad de subir flujos con pequeñas mejoras o mejor gestión." },
+    { q: "El perfil Value-Add se sitúa en:", o:["TIR 7–10%, deuda 40–45%","TIR 8–10%, deuda 45–60%","TIR 11–15%, deuda 60–75%","TIR >20%, deuda >70%"], a:2, e:"Requiere gestión activa para resolver problemas y desbloquear potencial." },
+    { q: "El perfil Opportunistic se caracteriza por:", o:["Ingreso estable y riesgo mínimo","Puede no generar ingresos durante años; financiación agresiva, TIR >20%","Deuda 40–45%","Contratos a muy largo plazo"], a:1, e:"La estrategia más arriesgada, con deuda >70%." },
+    { q: "Las inversiones Core suelen adquirirse como alternativa a:", o:["Acciones","Bonos","Criptomonedas","Materias primas"], a:1, e:"Ingreso estable y riesgo mínimo, similar a un bono." },
+    { q: "En el caso, el inmueble pierde valor durante la tenencia principalmente porque:", o:["Sube el Euribor","Al vender solo queda 1 año de contrato con DHL (se compró con 6 asegurados)","Suben los gastos operativos","Baja el LTV"], a:1, e:"El ingreso asegurado se reduce de 6 años a 1, reduciendo el valor." },
+    { q: "La recomendación del caso incluye:", o:["Subir el LTV al 75%","Renegociar un descuento de al menos £2,5M y/o extender el contrato con DHL","Vender de inmediato sin condiciones","Cambiar a contrato Single Net"], a:1, e:"El precio de adquisición es alto; conviene descuento y proteger el ingreso." },
+    { q: "Según la tabla de sensibilidad del caso, para una TIR positiva habría que vender al:", o:["4,5%","3,75%","5%","2,5%"], a:1, e:"Una cap rate del 3,75%, que sería una TIR muy pobre para un proyecto financiado." },
+    { q: "En entrevistas con examen de Excel, según el material, siempre preguntan por:", o:["El Euribor","Una recomendación de inversión","La fecha de construcción","El número de unidades"], a:1, e:"Por eso el curso prepara para responder a la recomendación." },
+    { q: "La 'ciencia' del análisis de inversiones se refiere a:", o:["El conocimiento de mercado","La estructura del modelo, el flujo de caja y el cálculo de rentabilidades","La negociación con agentes","El seguimiento del plan"], a:1, e:"Es la parte numérica y de Excel." },
+    { q: "El 'arte' del análisis de inversiones es:", o:["Calcular la TIR","El conocimiento de mercado para formular hipótesis realistas y ejecutables","Construir tablas de sensibilidad","Aplicar la cap rate"], a:1, e:"Algo intangible: que el plan de negocio sea ejecutable y no fantasía." },
+    { q: "El objetivo al formular hipótesis es:", o:["Ser lo más optimista posible","Ser lo más conservador posible","Ni demasiado optimista ni demasiado conservador, según el mercado","Copiar las del banco"], a:2, e:"Ambos extremos afectan negativamente la decisión de inversión." },
+    { q: "Ser demasiado conservador en las hipótesis puede provocar:", o:["Mejores resultados siempre","Dejar pasar oportunidades que podrían haber dado buen resultado","Que el banco no preste","Subir la cap rate"], a:1, e:"El exceso de conservadurismo descarta oportunidades válidas." },
+    { q: "¿Cuál NO es una fuente de información de mercado recomendada?", o:["Informes de mercado","Agentes de la propiedad","Expertos en gestión de activos","Predicciones astrológicas"], a:3, e:"Se usan informes, bases de datos, agentes y expertos en gestión de activos." },
+    { q: "Al seleccionar comparables de renta conviene:", o:["Usar todos los alquilados recientemente","Descartar los muy antiguos, de calidad inferior o con características que justifiquen diferencias","Elegir solo los más caros","Ignorar a los agentes"], a:1, e:"No todos los alquilados recientemente son buenos comparables." },
+    { q: "Los expertos en gestión de activos tienden a ser:", o:["Muy optimistas","Muy conservadores (les facilita el trabajo después)","Indiferentes","Agresivos con la deuda"], a:1, e:"Por eso el analista busca un balance entre datos, tendencias y su feedback." },
+    { q: "La clave del proceso de mejora continua del analista es:", o:["No cometer errores nunca","Hacer seguimiento de la ejecución del plan y comparar con las hipótesis","Hacer muchas tablas de sensibilidad","Usar solo datos de pago"], a:1, e:"Comparar hipótesis iniciales con la realidad afina los futuros análisis." },
+    { q: "El ejemplo de 'Excel lo aguanta todo' ilustra que:", o:["Excel nunca falla","Cambiando pequeños números un proyecto mediocre puede parecer interesante, pero hay que ejecutarlo","Hay que usar más fórmulas","Las tablas de sensibilidad sobran"], a:1, e:"El mercado corrige al optimista cuando toca ejecutar el plan." }
+  ]
+}
+];
+
+</script>
+<script>
 /* ---------- almacenamiento de progreso (memoria de sesión) ---------- */
 var STORE = {best:null, done:0};
 try{
@@ -904,7 +1157,7 @@ function save(){ try{ window.name='refin:'+JSON.stringify(STORE); }catch(e){} }
 function go(id){
   document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
   document.getElementById(id).classList.add('active');
-  var map={tema:'temas',flash:'flash',quiz:'quiz',result:'quiz',ref:'ref',temas:'temas',home:'home'};
+  var map={tema:'temas',flash:'flash',flashpick:'flash',quiz:'quiz',result:'quiz',ref:'ref',temas:'temas',home:'home',temaquiz:'temaquiz'};
   var tab=map[id]||id;
   document.querySelectorAll('#tabs button').forEach(function(b){
     b.classList.toggle('on', b.dataset.tab===tab);
@@ -950,20 +1203,53 @@ function stepTema(d){
 }
 
 /* ---------- flashcards ---------- */
-var fcOrder=[], fcIdx=0, fcFlipped=false;
+var fcDeck=[], fcOrder=[], fcIdx=0, fcFlipped=false, fcLabel='Todas las tarjetas';
+
+// abre el selector de mazos
+function openFlashPicker(){
+  var el=document.getElementById('fdlist'); el.innerHTML='';
+  // opción "todas"
+  var all=document.createElement('button'); all.className='tqcard';
+  all.onclick=function(){ startFlash(); };
+  all.innerHTML='<div class="tqtop"><span class="tqname">Todas las tarjetas</span>'+
+    '<span class="tqcount">'+FLASHCARDS.length+'</span></div>'+
+    '<div class="tqdesc">Las 45 tarjetas del curso mezcladas.</div>';
+  el.appendChild(all);
+  // un mazo por bloque
+  TEST_TEMAS.forEach(function(b){
+    var n=FLASHCARDS.filter(function(c){return c.cat===b.id}).length;
+    if(n===0) return;
+    var card=document.createElement('button'); card.className='tqcard';
+    card.onclick=function(){ startFlashCat(b.id, b.titulo); };
+    card.innerHTML='<div class="tqtop"><span class="tqname">'+b.titulo+'</span>'+
+      '<span class="tqcount">'+n+'</span></div>'+
+      '<div class="tqcaps">'+b.caps+'</div>';
+    el.appendChild(card);
+  });
+  go('flashpick');
+}
+
+// mazo completo
 function startFlash(){
-  if(fcOrder.length!==FLASHCARDS.length){ fcOrder=FLASHCARDS.map(function(_,i){return i}); fcIdx=0; }
-  document.getElementById('fc-n').textContent=FLASHCARDS.length;
+  fcDeck=FLASHCARDS.map(function(_,i){return i});
+  fcLabel='Todas las tarjetas';
+  beginFlash();
+}
+// mazo de un tema
+function startFlashCat(cat, label){
+  fcDeck=[]; FLASHCARDS.forEach(function(c,i){ if(c.cat===cat) fcDeck.push(i); });
+  fcLabel=label;
+  beginFlash();
+}
+function beginFlash(){
+  fcOrder=fcDeck.slice(); fcIdx=0;
+  document.getElementById('fc-n').textContent=fcOrder.length;
+  document.getElementById('fc-label').textContent=fcLabel;
   showCard(); go('flash');
 }
 function showCard(){
   fcFlipped=false; document.getElementById('fc').classList.remove('flip');
   var c=FLASHCARDS[fcOrder[fcIdx]];
-  // pequeño retardo para que no se vea el texto trasero al cambiar
-  setTimeout(function(){
-    document.getElementById('fc-term').textContent=c.c;
-    document.getElementById('fc-def').textContent=c.d;
-  }, fcFlipped?0:0);
   document.getElementById('fc-term').textContent=c.c;
   document.getElementById('fc-def').textContent=c.d;
   document.getElementById('fc-i').textContent=fcIdx+1;
@@ -973,7 +1259,7 @@ function flipCard(){
   document.getElementById('fc').classList.toggle('flip',fcFlipped);
 }
 function stepCard(d){
-  fcIdx=(fcIdx+d+FLASHCARDS.length)%FLASHCARDS.length; showCard();
+  fcIdx=(fcIdx+d+fcOrder.length)%fcOrder.length; showCard();
 }
 function shuffleCards(){
   for(var i=fcOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=fcOrder[i];fcOrder[i]=fcOrder[j];fcOrder[j]=t;}
@@ -981,22 +1267,52 @@ function shuffleCards(){
 }
 
 /* ---------- quiz ---------- */
+/* ---------- test por temas ---------- */
+function openTemaQuiz(){
+  var el=document.getElementById('tqlist'); el.innerHTML='';
+  TEST_TEMAS.forEach(function(b,i){
+    var card=document.createElement('button'); card.className='tqcard';
+    card.onclick=function(){ startTemaQuiz(i); };
+    card.innerHTML=
+      '<div class="tqtop"><span class="tqname">'+b.titulo+'</span>'+
+      '<span class="tqcount">'+b.preguntas.length+'</span></div>'+
+      '<div class="tqcaps">'+b.caps+'</div>'+
+      '<div class="tqdesc">'+b.desc+'</div>';
+    el.appendChild(card);
+  });
+  go('temaquiz');
+}
+
 var qOrder=[], qIdx=0, qScore=0, qAnswered=false;
+var activeQuiz=TEST, quizLabel='Examen general', quizIsGeneral=true;
+
+// arranca el examen general (banco completo)
 function startQuiz(){
-  qOrder=TEST.map(function(_,i){return i});
+  activeQuiz=TEST; quizLabel='Examen general'; quizIsGeneral=true;
+  beginQuiz();
+}
+// arranca un test de un bloque temático concreto
+function startTemaQuiz(idx){
+  var b=TEST_TEMAS[idx];
+  activeQuiz=b.preguntas; quizLabel=b.titulo; quizIsGeneral=false;
+  beginQuiz();
+}
+function beginQuiz(){
+  qOrder=activeQuiz.map(function(_,i){return i});
   for(var i=qOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=qOrder[i];qOrder[i]=qOrder[j];qOrder[j]=t;}
   qIdx=0; qScore=0; renderQuestion(); go('quiz');
 }
 function renderQuestion(){
   qAnswered=false;
-  var q=TEST[qOrder[qIdx]];
+  var q=activeQuiz[qOrder[qIdx]];
   document.getElementById('q-num').textContent='PREGUNTA '+String(qIdx+1).padStart(2,'0');
   document.getElementById('q-text').textContent=q.q;
-  document.getElementById('q-meta').textContent=(qIdx+1)+'/'+TEST.length;
-  document.getElementById('q-prog').style.width=((qIdx)/TEST.length*100)+'%';
+  document.getElementById('q-meta').textContent=(qIdx+1)+'/'+activeQuiz.length;
+  document.getElementById('q-prog').style.width=((qIdx)/activeQuiz.length*100)+'%';
+  document.getElementById('q-label').textContent=quizLabel;
   var exp=document.getElementById('q-exp'); exp.classList.remove('show');
   var nb=document.getElementById('q-next'); nb.disabled=true;
-  nb.textContent = (qIdx===TEST.length-1)?'Ver resultado ›':'Siguiente ›';
+  nb.textContent = (qIdx===activeQuiz.length-1)?'Ver resultado ›':'Siguiente ›';
   var keys=['A','B','C','D'];
   var el=document.getElementById('q-opts'); el.innerHTML='';
   q.o.forEach(function(opt,i){
@@ -1008,7 +1324,7 @@ function renderQuestion(){
 }
 function answer(i,btn){
   if(qAnswered)return; qAnswered=true;
-  var q=TEST[qOrder[qIdx]];
+  var q=activeQuiz[qOrder[qIdx]];
   var opts=document.getElementById('q-opts').children;
   for(var k=0;k<opts.length;k++){
     opts[k].classList.add('locked');
@@ -1019,17 +1335,17 @@ function answer(i,btn){
   var exp=document.getElementById('q-exp');
   exp.innerHTML='<b>'+(i===q.a?'Correcto. ':'Respuesta correcta: '+['A','B','C','D'][q.a]+'. ')+'</b>'+q.e;
   exp.classList.add('show');
-  document.getElementById('q-prog').style.width=((qIdx+1)/TEST.length*100)+'%';
+  document.getElementById('q-prog').style.width=((qIdx+1)/activeQuiz.length*100)+'%';
   document.getElementById('q-next').disabled=false;
 }
 function nextQuestion(){
-  if(qIdx<TEST.length-1){ qIdx++; renderQuestion(); window.scrollTo(0,0); }
+  if(qIdx<activeQuiz.length-1){ qIdx++; renderQuestion(); window.scrollTo(0,0); }
   else finishQuiz();
 }
 function finishQuiz(){
-  var pct=Math.round(qScore/TEST.length*100);
-  document.getElementById('r-ring').textContent=qScore+'/'+TEST.length;
-  document.getElementById('r-pct').textContent=pct+'% de aciertos';
+  var pct=Math.round(qScore/activeQuiz.length*100);
+  document.getElementById('r-ring').textContent=qScore+'/'+activeQuiz.length;
+  document.getElementById('r-pct').textContent=pct+'% · '+quizLabel;
   var title,msg;
   if(pct>=85){title='Dominado';msg='Listo para el examen. Repasa solo lo que falló.';}
   else if(pct>=70){title='Buen nivel';msg='Vas bien. Refuerza los temas donde dudaste.';}
@@ -1038,7 +1354,14 @@ function finishQuiz(){
   document.getElementById('r-title').textContent=title;
   document.getElementById('r-msg').textContent=msg;
   document.getElementById('r-ring').style.color = pct>=70?'var(--green)':(pct>=50?'var(--amber)':'var(--red)');
-  STORE.done++; STORE.best = (STORE.best==null)?pct:Math.max(STORE.best,pct); save(); renderHome();
+  // solo el examen general cuenta para las estadísticas del inicio
+  if(quizIsGeneral){
+    STORE.done++; STORE.best = (STORE.best==null)?pct:Math.max(STORE.best,pct); save(); renderHome();
+  }
+  // botón "repetir" adaptado al tipo de test
+  var rb=document.getElementById('r-repeat');
+  rb.textContent = quizIsGeneral ? 'Repetir examen' : 'Repetir tema';
+  rb.onclick = quizIsGeneral ? startQuiz : function(){ beginQuiz(); };
   go('result');
 }
 
