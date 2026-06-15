@@ -230,9 +230,9 @@ nav.tabs{
 }
 nav.tabs button{
   flex:1;background:none;border:0;color:var(--mut);cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;font-size:10.5px;font-weight:600;letter-spacing:.02em;
+  display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:9.5px;font-weight:600;letter-spacing:.01em;
 }
-nav.tabs button .gl{font-size:19px;line-height:1}
+nav.tabs button .gl{font-size:18px;line-height:1}
 nav.tabs button.on{color:var(--amber)}
 
 .back{
@@ -270,6 +270,61 @@ nav.tabs button.on{color:var(--amber)}
 }
 .tqcaps{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--amber-ink);margin-top:7px;letter-spacing:.02em}
 .tqdesc{font-size:13.5px;color:var(--mut);line-height:1.45;margin-top:5px}
+
+/* ---- Juegos ---- */
+.game-tile .ico{font-size:18px}
+.hiscore{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+.hiscore .hs-row{
+  display:flex;justify-content:space-between;align-items:center;
+  border:1px solid var(--line);background:var(--ink-2);border-radius:10px;padding:11px 14px;box-shadow:var(--shadow);
+}
+.hiscore .hs-name{font-size:13.5px;color:var(--mut)}
+.hiscore .hs-val{font-family:ui-monospace,monospace;font-size:14px;font-weight:700;color:var(--amber-ink)}
+
+.game-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.game-stat{font-family:ui-monospace,monospace;font-size:13px;color:var(--mut)}
+.game-stat b{color:var(--amber-ink)}
+
+.timer{
+  font-family:ui-monospace,monospace;font-size:30px;font-weight:700;letter-spacing:-.02em;
+  color:var(--amber-ink);min-width:64px;
+}
+.timer.low{color:var(--red)}
+
+/* Emparejar */
+.match-hint{font-size:13px;color:var(--mut);margin:0 0 14px;line-height:1.45}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.match-cell{
+  border:1px solid var(--line);background:var(--ink-2);border-radius:10px;
+  padding:12px 11px;font-size:12.5px;line-height:1.35;cursor:pointer;color:var(--txt);
+  min-height:74px;display:flex;align-items:center;text-align:left;
+  transition:border-color .12s,background .12s,transform .08s,opacity .25s;box-shadow:var(--shadow);
+}
+.match-cell:active{transform:scale(.97)}
+.match-cell.concept{font-weight:600}
+.match-cell.def{color:#3a4250}
+.match-cell.sel{border-color:var(--amber);background:var(--amber-soft);box-shadow:0 0 0 2px var(--amber-line) inset}
+.match-cell.done{opacity:0;pointer-events:none}
+.match-cell.miss{border-color:var(--red);background:var(--red-soft)}
+
+/* Adivina el ratio */
+.ratio-formula{
+  font-family:ui-monospace,monospace;font-size:16px;font-weight:600;line-height:1.5;
+  color:var(--blue);background:#f4f7fc;border:1px solid #dce6f5;border-radius:10px;
+  padding:16px;margin:10px 0 18px;text-align:center;
+}
+
+/* Verdadero / Falso */
+.vf-btns{display:flex;gap:12px;margin-top:6px}
+.vf-btn{
+  flex:1;border:1px solid var(--line);border-radius:12px;padding:18px;
+  font-size:16px;font-weight:650;cursor:pointer;transition:all .12s;box-shadow:var(--shadow);
+}
+.vf-true{background:var(--green-soft);color:var(--green);border-color:#bfe6d3}
+.vf-false{background:var(--red-soft);color:var(--red);border-color:#f3c9c4}
+.vf-btn:active{transform:scale(.97)}
+.vf-btn.locked{opacity:.5;cursor:default}
+.vf-btn.picked{box-shadow:0 0 0 2px currentColor inset}
 </style>
 </head>
 <body>
@@ -315,8 +370,12 @@ nav.tabs button.on{color:var(--amber)}
         <span class="ico">04</span><span class="t">Test por temas</span>
         <span class="d">124 preguntas repartidas en 7 bloques para repaso dirigido.</span>
       </button>
+      <button class="tile" onclick="go('games'); renderHiscore()">
+        <span class="ico">05</span><span class="t">Juegos</span>
+        <span class="d">Emparejar, contrarreloj, adivina el ratio y verdadero/falso.</span>
+      </button>
       <button class="tile" onclick="go('ref')">
-        <span class="ico">05</span><span class="t">Fórmulas</span>
+        <span class="ico">06</span><span class="t">Fórmulas</span>
         <span class="d">Glosario de ratios, perfiles de inversión y el caso del curso.</span>
       </button>
     </div>
@@ -416,7 +475,122 @@ nav.tabs button.on{color:var(--amber)}
     </div>
   </section>
 
-  <!-- REFERENCIA: fórmulas + perfiles + caso -->
+  <!-- MENÚ DE JUEGOS -->
+  <section id="games" class="view">
+    <button class="back" onclick="go('home')">‹ Inicio</button>
+    <h2 class="section">Juegos</h2>
+    <p class="lead">Cuatro formas de practicar el temario jugando. Todos usan el contenido del curso.</p>
+    <div class="tiles">
+      <button class="tile game-tile" onclick="openGamePicker('match')">
+        <span class="ico">◆</span><span class="t">Emparejar</span>
+        <span class="d">Une cada concepto con su definición vaciando el tablero.</span>
+      </button>
+      <button class="tile game-tile" onclick="openGamePicker('timed')">
+        <span class="ico">⏱</span><span class="t">Contrarreloj</span>
+        <span class="d">Responde tantas preguntas como puedas en 60 segundos.</span>
+      </button>
+      <button class="tile game-tile" onclick="startRatio()">
+        <span class="ico">∑</span><span class="t">Adivina el ratio</span>
+        <span class="d">Dada la fórmula, elige a qué ratio o métrica corresponde.</span>
+      </button>
+      <button class="tile game-tile" onclick="openGamePicker('vf')">
+        <span class="ico">⊻</span><span class="t">Verdadero / Falso</span>
+        <span class="d">Afirmaciones rápidas del temario. Acierta el máximo seguidas.</span>
+      </button>
+    </div>
+    <div class="hiscore" id="hiscore"></div>
+  </section>
+
+  <!-- SELECTOR DE TEMA PARA JUEGOS -->
+  <section id="gamepick" class="view">
+    <button class="back" onclick="go('games')">‹ Juegos</button>
+    <h2 class="section" id="gp-title">Elige tema</h2>
+    <p class="lead">Juega con todo el temario o céntrate en un bloque.</p>
+    <div class="tqlist" id="gplist"></div>
+  </section>
+
+  <!-- JUEGO: EMPAREJAR -->
+  <section id="match" class="view">
+    <button class="back" onclick="openGamePicker('match')">‹ Temas</button>
+    <div class="game-head">
+      <div class="q-label" id="match-label">Emparejar</div>
+      <div class="game-stat"><span id="match-pairs">0</span> parejas · <span id="match-moves">0</span> intentos</div>
+    </div>
+    <p class="match-hint" id="match-hint">Toca un concepto y luego su definición.</p>
+    <div class="match-grid" id="match-grid"></div>
+    <div class="navrow" style="margin-top:18px">
+      <button class="btn ghost" onclick="openMatch()">Otra ronda</button>
+    </div>
+  </section>
+
+  <!-- JUEGO: CONTRARRELOJ -->
+  <section id="timed" class="view">
+    <button class="back" onclick="openGamePicker('timed')">‹ Temas</button>
+    <div class="q-label" id="tm-label">Todos los temas</div>
+    <div class="game-head">
+      <div class="timer" id="timer">60</div>
+      <div class="game-stat">Puntos: <b id="timed-score">0</b></div>
+    </div>
+    <div class="qcard">
+      <div class="qnum" id="tm-num"></div>
+      <div class="qtext" id="tm-text"></div>
+      <div class="opts" id="tm-opts"></div>
+    </div>
+  </section>
+
+  <!-- JUEGO: ADIVINA EL RATIO -->
+  <section id="ratio" class="view">
+    <button class="back" onclick="go('games')">‹ Juegos</button>
+    <div class="game-head">
+      <div class="q-label">Adivina el ratio</div>
+      <div class="game-stat"><span id="ra-i">1</span>/<span id="ra-n">10</span> · Aciertos: <b id="ra-score">0</b></div>
+    </div>
+    <div class="qcard">
+      <div class="qnum">¿A QUÉ CORRESPONDE ESTA FÓRMULA?</div>
+      <div class="ratio-formula" id="ra-formula"></div>
+      <div class="opts" id="ra-opts"></div>
+      <div class="explain" id="ra-exp"></div>
+    </div>
+    <div class="navrow">
+      <button class="btn primary" id="ra-next" onclick="nextRatio()" disabled>Siguiente ›</button>
+    </div>
+  </section>
+
+  <!-- JUEGO: VERDADERO / FALSO -->
+  <section id="vf" class="view">
+    <button class="back" onclick="openGamePicker('vf')">‹ Temas</button>
+    <div class="game-head">
+      <div class="q-label" id="vf-label">Verdadero / Falso</div>
+      <div class="game-stat"><span id="vf-i">1</span>/<span id="vf-n">10</span> · Aciertos: <b id="vf-score">0</b></div>
+    </div>
+    <div class="qcard">
+      <div class="qnum">¿VERDADERO O FALSO?</div>
+      <div class="qtext" id="vf-text"></div>
+      <div class="vf-btns">
+        <button class="vf-btn vf-true" id="vf-yes" onclick="answerVF(true)">Verdadero</button>
+        <button class="vf-btn vf-false" id="vf-no" onclick="answerVF(false)">Falso</button>
+      </div>
+      <div class="explain" id="vf-exp"></div>
+    </div>
+    <div class="navrow">
+      <button class="btn primary" id="vf-next" onclick="nextVF()" disabled>Siguiente ›</button>
+    </div>
+  </section>
+
+  <!-- RESULTADO DE JUEGO -->
+  <section id="gresult" class="view">
+    <h2 class="section" id="gr-section">Resultado</h2>
+    <div class="score">
+      <div class="ring" id="gr-ring">—</div>
+      <div class="pct" id="gr-pct"></div>
+      <h3 id="gr-title"></h3>
+      <p id="gr-msg"></p>
+    </div>
+    <div class="navrow">
+      <button class="btn ghost" onclick="go('games')">Juegos</button>
+      <button class="btn primary" id="gr-repeat">Jugar otra vez</button>
+    </div>
+  </section>
   <section id="ref" class="view">
     <button class="back" onclick="go('home')">‹ Inicio</button>
     <h2 class="section">Fórmulas y ratios</h2>
@@ -436,6 +610,7 @@ nav.tabs button.on{color:var(--amber)}
   <button data-tab="flash" onclick="openFlashPicker()"><span class="gl">⊞</span>Cards</button>
   <button data-tab="quiz" onclick="startQuiz()"><span class="gl">✓</span>Examen</button>
   <button data-tab="temaquiz" onclick="openTemaQuiz()"><span class="gl">◑</span>Temas</button>
+  <button data-tab="games" onclick="go('games'); renderHiscore()"><span class="gl">◆</span>Juegos</button>
   <button data-tab="ref" onclick="go('ref')"><span class="gl">∑</span>Fórmulas</button>
 </nav>
 
@@ -1145,6 +1320,61 @@ const TEST_TEMAS = [
 
 </script>
 <script>
+// ============================================================
+// VERDADERO / FALSO — afirmaciones extraídas del temario
+// {s: afirmación, v: true|false, e: explicación}
+// ============================================================
+
+const VF = [
+  { s: "En un contrato Triple Net (NNN), el inquilino asume todos los gastos operativos.", v:true, e: "Correcto: impuestos, seguro del inmueble y mantenimiento corren a cargo del inquilino.", cat: "contratos" },
+  { s: "En un contrato Triple Net, el propietario asume el mantenimiento del inmueble.", v:false, e: "Falso: en NNN lo asume el inquilino. El propietario solo paga tasas de gestión si contrata un gestor externo.", cat: "contratos" },
+  { s: "El ERV es la renta que paga actualmente el inquilino.", v:false, e: "Falso: el ERV es el valor de renta de mercado; la renta actual puede ser mayor o menor.", cat: "flujo" },
+  { s: "Si un inmueble está alquilado por debajo del ERV, hay oportunidad de subir ingresos a mercado.", v:true, e: "Correcto: actualizar a precios de mercado mejora la rentabilidad.", cat: "flujo" },
+  { s: "Si un inmueble está alquilado por encima del ERV, existe riesgo de que los ingresos bajen al renovar.", v:true, e: "Correcto: futuros inquilinos negociarán a la baja; es el riesgo de renta potencial.", cat: "flujo" },
+  { s: "Los gastos reembolsables se consideran una salida de efectivo.", v:false, e: "Falso: son un ingreso (gastos que asume el inquilino según el contrato).", cat: "flujo" },
+  { s: "El NOI se calcula sumando los gastos recuperables a los ingresos del alquiler y restando los gastos operativos.", v:true, e: "Correcto: NOI = ingresos + gastos recuperables − gastos operativos.", cat: "flujo" },
+  { s: "El margen Bruto a Neto es mayor con contratos Single Net que con Triple Net.", v:false, e: "Falso: es mayor con Triple Net, porque el inquilino asume más gastos.", cat: "flujo" },
+  { s: "Los gastos de capital son gastos recurrentes del día a día.", v:false, e: "Falso: son no recurrentes. Los recurrentes son los gastos operativos.", cat: "flujo" },
+  { s: "Las mejoras a inquilinos son un tipo específico de gasto de capital.", v:true, e: "Correcto: son CapEx a petición del inquilino y se separan del resto.", cat: "flujo" },
+  { s: "Las comisiones de alquiler se pagan cada mes durante toda la vida del contrato.", v:false, e: "Falso: solo surgen al firmar un nuevo alquiler o renovar uno existente.", cat: "flujo" },
+  { s: "El apalancamiento financiero siempre mejora la rentabilidad de la inversión.", v:false, e: "Falso: la amplifica en ambos sentidos; mal usado puede causar pérdidas.", cat: "financiacion" },
+  { s: "El LTV es el porcentaje del valor de la propiedad financiado con deuda.", v:true, e: "Correcto: Loan to Value = principal / valor.", cat: "financiacion" },
+  { s: "Un pago balloon implica amortizar el préstamo de forma lineal cada año.", v:false, e: "Falso: el balloon es un gran pago del principal al final del término.", cat: "financiacion" },
+  { s: "Hay apalancamiento negativo cuando el coste de la deuda supera la rentabilidad de la propiedad.", v:true, e: "Correcto: si el tipo de interés es mayor que el rendimiento, el apalancamiento no es positivo.", cat: "financiacion" },
+  { s: "El Debt Yield se calcula dividiendo el NOI entre el principal del préstamo.", v:true, e: "Correcto: Debt Yield = NOI / principal.", cat: "financiacion" },
+  { s: "El DSCR compara el NOI únicamente con el gasto de intereses.", v:false, e: "Falso: eso es el ICR. El DSCR usa el servicio de la deuda (interés + amortización).", cat: "financiacion" },
+  { s: "Los bancos suelen calcular los covenants para los próximos 12 meses.", v:true, e: "Correcto: no en un momento concreto, sino sobre los próximos 12 meses.", cat: "financiacion" },
+  { s: "El Préstamo Vivo se incluye en la suma del Flujo de Caja de Financiación.", v:false, e: "Falso: es un saldo, no un flujo; se excluye de esa suma.", cat: "financiacion" },
+  { s: "La Rentabilidad Inicial Neta usa en el denominador el valor más los costes de adquisición.", v:true, e: "Correcto: Net Initial Yield = NOI / (valor + costes de adquisición).", cat: "rentabilidad" },
+  { s: "La Tasa de Capitalización se calcula como NOI dividido por el valor estimado.", v:true, e: "Correcto: y sirve para estimar valor: Valor = NOI / cap rate.", cat: "rentabilidad" },
+  { s: "La Rentabilidad Reversionaria divide el NOI por el valor bruto.", v:false, e: "Falso: divide el ERV (renta de mercado) por el valor bruto.", cat: "rentabilidad" },
+  { s: "La TIR tiene en cuenta el valor del dinero en el tiempo.", v:true, e: "Correcto: es su principal ventaja frente a otras medidas.", cat: "rentabilidad" },
+  { s: "El Múltiplo de Capital tiene en cuenta el valor del dinero en el tiempo.", v:false, e: "Falso: muestra el retorno total sin considerar el tiempo.", cat: "rentabilidad" },
+  { s: "Se recomienda usar TIR.NO.PER porque ajusta el cálculo según las fechas de los flujos.", v:true, e: "Correcto: útil con periodos desiguales o flujos sub-anuales.", cat: "rentabilidad" },
+  { s: "Los retornos no apalancados incluyen el efecto de la financiación.", v:false, e: "Falso: precisamente lo excluyen para ver la rentabilidad real del inmueble.", cat: "rentabilidad" },
+  { s: "El modelo del caso del curso es mensual.", v:true, e: "Correcto: se opta por mensual por ser más sencillo.", cat: "hipotesis" },
+  { s: "Conviene colocar la columna de totales al final del flujo de caja.", v:false, e: "Falso: mejor al principio, para no estorbar si se alarga la tenencia.", cat: "hipotesis" },
+  { s: "Para fijar los ingresos al calendario de fechas se usa la combinación SI e Y.", v:true, e: "Correcto: SI e Y ajustan posesión y duración del alquiler.", cat: "flujo" },
+  { s: "El valor del inmueble a la venta se calcula como NOI del año de venta dividido por la cap rate.", v:true, e: "Correcto: refleja los cambios de eficiencia durante la tenencia.", cat: "hipotesis" },
+  { s: "Con flujos mensuales no hace falta anualizar el NOI al calcular el precio de venta.", v:false, e: "Falso: hay que multiplicar el NOI por 12; olvidarlo es un error común.", cat: "hipotesis" },
+  { s: "Si se vende antes de repagar el préstamo, hay que añadir la devolución del préstamo y las comisiones de cancelación.", v:true, e: "Correcto: dos filas en la sección de desinversión.", cat: "hipotesis" },
+  { s: "Una inversión Core suele tener un nivel de deuda del 70% o más.", v:false, e: "Falso: Core usa deuda del 40–45%. El >70% es Opportunistic.", cat: "perfiles" },
+  { s: "El perfil Value-Add genera rentabilidades (TIR) de entre el 11% y el 15%.", v:true, e: "Correcto: con deuda del 60–75% y gestión activa.", cat: "perfiles" },
+  { s: "El perfil Opportunistic puede no generar ingresos durante varios años.", v:true, e: "Correcto: es la estrategia más arriesgada, con financiación agresiva.", cat: "perfiles" },
+  { s: "En el caso del curso, el inmueble gana valor durante el periodo de tenencia.", v:false, e: "Falso: pierde valor; se compra al 3,3% y se vende al 4,5%.", cat: "perfiles" },
+  { s: "En el caso, al vender solo queda un año de contrato con DHL.", v:true, e: "Correcto: se compró con 6 años asegurados y se vende con 1.", cat: "perfiles" },
+  { s: "La variable con más incertidumbre en una tabla de sensibilidad suele ser la tasa de capitalización.", v:true, e: "Correcto: el precio de venta es lo más incierto.", cat: "resultados" },
+  { s: "La tabla de sensibilidad debe construirse en la hoja Resultados.", v:false, e: "Falso: debe ir en la misma hoja de las variables (Hipótesis); luego se enlaza.", cat: "resultados" },
+  { s: "Tras activar 'Automático excepto para tablas de datos', hay que pulsar F9 para recalcular la tabla.", v:true, e: "Correcto: F9 fuerza el recálculo.", cat: "resultados" },
+  { s: "La 'ciencia' del análisis es el conocimiento de mercado para formular buenas hipótesis.", v:false, e: "Falso: eso es el 'arte'. La ciencia es el modelo, el flujo de caja y los cálculos.", cat: "perfiles" },
+  { s: "El objetivo al formular hipótesis es ser lo más optimista posible.", v:false, e: "Falso: ni demasiado optimista ni demasiado conservador; ambos extremos perjudican la decisión.", cat: "perfiles" },
+  { s: "Los expertos en gestión de activos tienden a ser conservadores en sus hipótesis.", v:true, e: "Correcto: les facilita el trabajo después; el analista busca el balance.", cat: "perfiles" },
+  { s: "La densidad del solar es un dato especialmente relevante en inmuebles logísticos.", v:true, e: "Correcto: por eso se incluye en la descripción del almacén del caso.", cat: "hipotesis" },
+  { s: "El Flujo de Caja Después de Financiación es la suma del Flujo de Operaciones y el Flujo de Financiación.", v:true, e: "Correcto: así se obtiene el beneficio antes de impuestos.", cat: "financiacion" },
+];
+
+</script>
+<script>
 /* ---------- almacenamiento de progreso (memoria de sesión) ---------- */
 var STORE = {best:null, done:0};
 try{
@@ -1157,7 +1387,8 @@ function save(){ try{ window.name='refin:'+JSON.stringify(STORE); }catch(e){} }
 function go(id){
   document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
   document.getElementById(id).classList.add('active');
-  var map={tema:'temas',flash:'flash',flashpick:'flash',quiz:'quiz',result:'quiz',ref:'ref',temas:'temas',home:'home',temaquiz:'temaquiz'};
+  var map={tema:'temas',flash:'flash',flashpick:'flash',quiz:'quiz',result:'quiz',ref:'ref',temas:'temas',home:'home',temaquiz:'temaquiz',
+           games:'games',gamepick:'games',match:'games',timed:'games',ratio:'games',vf:'games',gresult:'games'};
   var tab=map[id]||id;
   document.querySelectorAll('#tabs button').forEach(function(b){
     b.classList.toggle('on', b.dataset.tab===tab);
@@ -1363,6 +1594,334 @@ function finishQuiz(){
   rb.textContent = quizIsGeneral ? 'Repetir examen' : 'Repetir tema';
   rb.onclick = quizIsGeneral ? startQuiz : function(){ beginQuiz(); };
   go('result');
+}
+
+/* ====================== JUEGOS ====================== */
+
+// recuerdan el último tema elegido (para "jugar otra vez")
+var matchCat='all', tmCat='all', vfCat='all';
+
+// selector de tema genérico: 'kind' = match | timed | vf
+function openGamePicker(kind){
+  var conf={
+    match:{ title:'Emparejar · elige tema', label:'Emparejar', min:4,
+            count:function(id){ return FLASHCARDS.filter(function(c){return c.cat===id}).length; },
+            total:FLASHCARDS.length, run:function(id){ matchCat=id; openMatch(id); } },
+    timed:{ title:'Contrarreloj · elige tema', label:'Contrarreloj', min:1,
+            count:function(id){ var b=TEST_TEMAS.filter(function(x){return x.id===id})[0]; return b?b.preguntas.length:0; },
+            total:TEST.length, run:function(id){ tmCat=id; startTimed(id); } },
+    vf:{ title:'Verdadero / Falso · elige tema', label:'V/F', min:3,
+            count:function(id){ return VF.filter(function(x){return x.cat===id}).length; },
+            total:VF.length, run:function(id){ vfCat=id; startVF(id); } }
+  }[kind];
+  document.getElementById('gp-title').textContent=conf.title;
+  var el=document.getElementById('gplist'); el.innerHTML='';
+  // opción "todos"
+  var all=document.createElement('button'); all.className='tqcard';
+  all.onclick=function(){ conf.run('all'); };
+  all.innerHTML='<div class="tqtop"><span class="tqname">Todos los temas</span>'+
+    '<span class="tqcount">'+conf.total+'</span></div>'+
+    '<div class="tqdesc">Mezcla preguntas de todo el temario.</div>';
+  el.appendChild(all);
+  // bloques con suficientes elementos
+  TEST_TEMAS.forEach(function(b){
+    var n=conf.count(b.id);
+    if(n<conf.min) return; // se omiten bloques con muy pocos elementos
+    var card=document.createElement('button'); card.className='tqcard';
+    card.onclick=function(){ conf.run(b.id); };
+    card.innerHTML='<div class="tqtop"><span class="tqname">'+b.titulo+'</span>'+
+      '<span class="tqcount">'+n+'</span></div>'+
+      '<div class="tqcaps">'+b.caps+'</div>';
+    el.appendChild(card);
+  });
+  go('gamepick');
+}
+
+// récords guardados en STORE
+function renderHiscore(){
+  STORE.hs = STORE.hs || {};
+  var rows=[
+    ['Contrarreloj', STORE.hs.timed!=null ? STORE.hs.timed+' pts' : '—'],
+    ['Adivina el ratio', STORE.hs.ratio!=null ? STORE.hs.ratio+'%' : '—'],
+    ['Verdadero / Falso', STORE.hs.vf!=null ? STORE.hs.vf+'%' : '—'],
+    ['Emparejar (mejor)', STORE.hs.match!=null ? STORE.hs.match+' intentos' : '—']
+  ];
+  var el=document.getElementById('hiscore');
+  el.innerHTML='<div style="font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:600;margin-bottom:2px">Tus récords</div>';
+  rows.forEach(function(r){
+    el.innerHTML+='<div class="hs-row"><span class="hs-name">'+r[0]+'</span><span class="hs-val">'+r[1]+'</span></div>';
+  });
+}
+function shuffle(a){ for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a; }
+
+function showGameResult(opts){
+  document.getElementById('gr-section').textContent=opts.section;
+  document.getElementById('gr-ring').textContent=opts.ring;
+  document.getElementById('gr-ring').style.color=opts.color||'var(--amber)';
+  document.getElementById('gr-pct').textContent=opts.sub||'';
+  document.getElementById('gr-title').textContent=opts.title;
+  document.getElementById('gr-msg').textContent=opts.msg;
+  document.getElementById('gr-repeat').textContent=opts.repeatLabel||'Jugar otra vez';
+  document.getElementById('gr-repeat').onclick=opts.repeat;
+  go('gresult');
+}
+
+/* ---------- 1) EMPAREJAR ---------- */
+var matchSel=null, matchPairs=0, matchMoves=0, matchTotal=0, matchLock=false, matchLabel='Todos los temas';
+function openMatch(catId){
+  var idxs;
+  if(!catId||catId==='all'){ idxs=FLASHCARDS.map(function(_,i){return i}); matchLabel='Todos los temas'; }
+  else{
+    idxs=[]; FLASHCARDS.forEach(function(c,i){ if(c.cat===catId) idxs.push(i); });
+    matchLabel=(TEST_TEMAS.filter(function(b){return b.id===catId})[0]||{}).titulo||'Tema';
+  }
+  // hasta 5 parejas (o las que haya si el tema tiene menos)
+  var n=Math.min(5, idxs.length);
+  var pool=shuffle(idxs).slice(0,n);
+  matchTotal=pool.length; matchPairs=0; matchMoves=0; matchSel=null; matchLock=false;
+  document.getElementById('match-pairs').textContent='0';
+  document.getElementById('match-moves').textContent='0';
+  document.getElementById('match-label').textContent=matchLabel;
+  document.getElementById('match-hint').textContent='Toca un concepto y luego su definición.';
+  var cells=[];
+  pool.forEach(function(idx){
+    cells.push({pair:idx, type:'concept', text:FLASHCARDS[idx].c});
+    cells.push({pair:idx, type:'def', text:FLASHCARDS[idx].d});
+  });
+  shuffle(cells);
+  var grid=document.getElementById('match-grid'); grid.innerHTML='';
+  cells.forEach(function(c){
+    var b=document.createElement('button');
+    b.className='match-cell '+c.type;
+    b.textContent=c.text;
+    b.dataset.pair=c.pair;
+    b.onclick=function(){ matchTap(b); };
+    grid.appendChild(b);
+  });
+  go('match');
+}
+function matchTap(cell){
+  if(matchLock||cell.classList.contains('done')||cell===matchSel) return;
+  if(!matchSel){ matchSel=cell; cell.classList.add('sel'); return; }
+  matchMoves++; document.getElementById('match-moves').textContent=matchMoves;
+  if(cell.dataset.pair===matchSel.dataset.pair){
+    var a=matchSel, b=cell;
+    a.classList.add('done'); b.classList.add('done'); a.classList.remove('sel');
+    matchSel=null; matchPairs++;
+    document.getElementById('match-pairs').textContent=matchPairs;
+    if(matchPairs===matchTotal){
+      STORE.hs=STORE.hs||{};
+      var prev=STORE.hs.match;
+      if(prev==null||matchMoves<prev){ STORE.hs.match=matchMoves; save(); }
+      setTimeout(function(){
+        showGameResult({
+          section:'Emparejar', ring:matchMoves, sub:'intentos · '+matchTotal+' parejas · '+matchLabel,
+          color:'var(--green)',
+          title: matchMoves<=matchTotal+1?'¡Memoria de elefante!':(matchMoves<=matchTotal+4?'Muy bien':'Completado'),
+          msg: matchMoves<=matchTotal+1?'Casi sin fallos. Impecable.':'Cuantos menos intentos, mejor tu memoria.',
+          repeatLabel:'Otra ronda', repeat:function(){ openMatch(matchCat); }
+        });
+      },350);
+    }
+  } else {
+    var a=matchSel, b=cell; matchLock=true;
+    a.classList.add('miss'); b.classList.add('miss'); a.classList.remove('sel');
+    setTimeout(function(){
+      a.classList.remove('miss'); b.classList.remove('miss'); matchSel=null; matchLock=false;
+    },550);
+  }
+}
+
+/* ---------- 2) CONTRARRELOJ ---------- */
+var tmTime=60, tmScore=0, tmTimer=null, tmPool=[], tmPos=0, tmSrc=TEST, tmLabel='Todos los temas';
+// pool de preguntas según tema ('all' o id de bloque)
+function timedPool(catId){
+  if(!catId||catId==='all'){ tmSrc=TEST; tmLabel='Todos los temas'; }
+  else{
+    var blk=TEST_TEMAS.filter(function(b){return b.id===catId})[0];
+    tmSrc=blk.preguntas; tmLabel=blk.titulo;
+  }
+}
+function startTimed(catId){
+  timedPool(catId);
+  tmTime=60; tmScore=0; tmPos=0;
+  tmPool=shuffle(tmSrc.map(function(_,i){return i}));
+  document.getElementById('timed-score').textContent='0';
+  document.getElementById('timer').textContent='60';
+  document.getElementById('timer').classList.remove('low');
+  document.getElementById('tm-label').textContent=tmLabel;
+  tmNext(); go('timed');
+  clearInterval(tmTimer);
+  tmTimer=setInterval(function(){
+    tmTime--;
+    var t=document.getElementById('timer');
+    t.textContent=tmTime;
+    if(tmTime<=10) t.classList.add('low');
+    if(tmTime<=0){ clearInterval(tmTimer); endTimed(); }
+  },1000);
+}
+function tmNext(){
+  if(tmPos>=tmPool.length) tmPool=shuffle(tmPool), tmPos=0;
+  var q=tmSrc[tmPool[tmPos]];
+  document.getElementById('tm-num').textContent='+1 por acierto';
+  document.getElementById('tm-text').textContent=q.q;
+  var keys=['A','B','C','D'];
+  var el=document.getElementById('tm-opts'); el.innerHTML='';
+  q.o.forEach(function(opt,i){
+    var b=document.createElement('button'); b.className='opt';
+    b.innerHTML='<span class="k">'+keys[i]+'</span><span>'+opt+'</span>';
+    b.onclick=function(){ tmAnswer(i,b,q); };
+    el.appendChild(b);
+  });
+}
+function tmAnswer(i,btn,q){
+  if(tmTime<=0) return;
+  if(i===q.a){
+    tmScore++; document.getElementById('timed-score').textContent=tmScore;
+    btn.classList.add('correct');
+  } else {
+    btn.classList.add('wrong');
+    var opts=btn.parentNode.children;
+    for(var k=0;k<opts.length;k++) if(k===q.a) opts[k].classList.add('correct');
+  }
+  var opts=document.getElementById('tm-opts').children;
+  for(var k=0;k<opts.length;k++) opts[k].classList.add('locked');
+  tmPos++;
+  setTimeout(tmNext, i===q.a?180:520);
+}
+function endTimed(){
+  STORE.hs=STORE.hs||{};
+  var prev=STORE.hs.timed, best=(prev==null||tmScore>prev);
+  if(best){ STORE.hs.timed=tmScore; save(); }
+  showGameResult({
+    section:'Contrarreloj', ring:tmScore, sub:'puntos en 60 s · '+tmLabel,
+    color: tmScore>=15?'var(--green)':(tmScore>=8?'var(--amber)':'var(--red)'),
+    title: best?'¡Nuevo récord!':(tmScore>=15?'Muy rápido':'Buen intento'),
+    msg: tmScore>=15?'Tienes el temario muy fresco.':'Sigue practicando para subir tu marca.',
+    repeatLabel:'Jugar otra vez', repeat:function(){ startTimed(tmCat); }
+  });
+}
+
+/* ---------- 3) ADIVINA EL RATIO ---------- */
+var raPool=[], raIdx=0, raScore=0, raAnswered=false, raNames=[];
+function buildRatioBank(){
+  // tomar fórmulas que tienen nombre claro de ratio/métrica
+  var items=[];
+  FORMULAS.forEach(function(g){ g.items.forEach(function(it){ items.push(it); }); });
+  raNames=items.map(function(it){ return it.n; });
+  return items;
+}
+function startRatio(){
+  var bank=buildRatioBank();
+  raPool=shuffle(bank.slice()).slice(0,10);
+  raIdx=0; raScore=0;
+  document.getElementById('ra-n').textContent=raPool.length;
+  document.getElementById('ra-score').textContent='0';
+  renderRatio(); go('ratio');
+}
+function renderRatio(){
+  raAnswered=false;
+  var it=raPool[raIdx];
+  document.getElementById('ra-i').textContent=raIdx+1;
+  document.getElementById('ra-formula').textContent=it.f;
+  document.getElementById('ra-exp').classList.remove('show');
+  document.getElementById('ra-next').disabled=true;
+  document.getElementById('ra-next').textContent=(raIdx===raPool.length-1)?'Ver resultado ›':'Siguiente ›';
+  // 3 distractores + la correcta
+  var others=shuffle(raNames.filter(function(n){return n!==it.n})).slice(0,3);
+  var opts=shuffle([it.n].concat(others));
+  var keys=['A','B','C','D'];
+  var el=document.getElementById('ra-opts'); el.innerHTML='';
+  opts.forEach(function(name,i){
+    var b=document.createElement('button'); b.className='opt';
+    b.innerHTML='<span class="k">'+keys[i]+'</span><span>'+name+'</span>';
+    b.onclick=function(){ answerRatio(name,it.n,b); };
+    el.appendChild(b);
+  });
+}
+function answerRatio(picked,correct,btn){
+  if(raAnswered)return; raAnswered=true;
+  var opts=document.getElementById('ra-opts').children;
+  for(var k=0;k<opts.length;k++){
+    opts[k].classList.add('locked');
+    if(opts[k].textContent.indexOf(correct)>-1) opts[k].classList.add('correct');
+  }
+  if(picked===correct){ raScore++; document.getElementById('ra-score').textContent=raScore; }
+  else { btn.classList.add('wrong'); }
+  var exp=document.getElementById('ra-exp');
+  exp.innerHTML='<b>'+(picked===correct?'Correcto. ':'Es '+correct+'. ')+'</b>'+raPool[raIdx].f;
+  exp.classList.add('show');
+  document.getElementById('ra-next').disabled=false;
+}
+function nextRatio(){
+  if(raIdx<raPool.length-1){ raIdx++; renderRatio(); window.scrollTo(0,0); }
+  else {
+    var pct=Math.round(raScore/raPool.length*100);
+    STORE.hs=STORE.hs||{}; var prev=STORE.hs.ratio, best=(prev==null||pct>prev);
+    if(best){ STORE.hs.ratio=pct; save(); }
+    showGameResult({
+      section:'Adivina el ratio', ring:raScore+'/'+raPool.length, sub:pct+'%'+(best?' · récord':''),
+      color: pct>=80?'var(--green)':(pct>=50?'var(--amber)':'var(--red)'),
+      title: pct>=80?'Ratios dominados':'A repasar fórmulas',
+      msg: pct>=80?'Tienes los ratios bien clavados.':'Pásate por la pestaña Fórmulas y vuelve.',
+      repeatLabel:'Jugar otra vez', repeat:startRatio
+    });
+  }
+}
+
+/* ---------- 4) VERDADERO / FALSO ---------- */
+var vfPool=[], vfIdx=0, vfScore=0, vfAnswered=false, vfSrc=[], vfLabel='Todos los temas';
+function startVF(catId){
+  if(!catId||catId==='all'){ vfSrc=VF.map(function(_,i){return i}); vfLabel='Todos los temas'; }
+  else{
+    vfSrc=[]; VF.forEach(function(x,i){ if(x.cat===catId) vfSrc.push(i); });
+    vfLabel=(TEST_TEMAS.filter(function(b){return b.id===catId})[0]||{}).titulo||'Tema';
+  }
+  vfPool=shuffle(vfSrc.slice()).slice(0,12);
+  vfIdx=0; vfScore=0;
+  document.getElementById('vf-n').textContent=vfPool.length;
+  document.getElementById('vf-score').textContent='0';
+  document.getElementById('vf-label').textContent=vfLabel;
+  renderVF(); go('vf');
+}
+function renderVF(){
+  vfAnswered=false;
+  var x=VF[vfPool[vfIdx]];
+  document.getElementById('vf-i').textContent=vfIdx+1;
+  document.getElementById('vf-text').textContent=x.s;
+  document.getElementById('vf-exp').classList.remove('show');
+  document.getElementById('vf-next').disabled=true;
+  document.getElementById('vf-next').textContent=(vfIdx===vfPool.length-1)?'Ver resultado ›':'Siguiente ›';
+  var y=document.getElementById('vf-yes'), n=document.getElementById('vf-no');
+  [y,n].forEach(function(b){ b.classList.remove('locked','picked'); });
+}
+function answerVF(choice){
+  if(vfAnswered)return; vfAnswered=true;
+  var x=VF[vfPool[vfIdx]];
+  var y=document.getElementById('vf-yes'), n=document.getElementById('vf-no');
+  [y,n].forEach(function(b){ b.classList.add('locked'); });
+  (choice?y:n).classList.add('picked');
+  var ok=(choice===x.v);
+  if(ok){ vfScore++; document.getElementById('vf-score').textContent=vfScore; }
+  var exp=document.getElementById('vf-exp');
+  exp.innerHTML='<b>'+(ok?'Correcto. ':'Incorrecto. ')+'</b>'+x.e;
+  exp.classList.add('show');
+  document.getElementById('vf-next').disabled=false;
+}
+function nextVF(){
+  if(vfIdx<vfPool.length-1){ vfIdx++; renderVF(); window.scrollTo(0,0); }
+  else {
+    var pct=Math.round(vfScore/vfPool.length*100);
+    STORE.hs=STORE.hs||{}; var prev=STORE.hs.vf, best=(prev==null||pct>prev);
+    if(best){ STORE.hs.vf=pct; save(); }
+    showGameResult({
+      section:'Verdadero / Falso', ring:vfScore+'/'+vfPool.length, sub:pct+'% · '+vfLabel+(best?' · récord':''),
+      color: pct>=80?'var(--green)':(pct>=50?'var(--amber)':'var(--red)'),
+      title: pct>=80?'¡Muy afinado!':'Sigue repasando',
+      msg: pct>=80?'Distingues bien lo verdadero de lo falso.':'Vuelve al temario para afianzar.',
+      repeatLabel:'Jugar otra vez', repeat:function(){ startVF(vfCat); }
+    });
+  }
 }
 
 /* ---------- referencia ---------- */
