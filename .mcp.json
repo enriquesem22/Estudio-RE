@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "subastech": {
-      "type": "http",
-      "url": "https://mcp.subastech.com/mcp"
-    }
-  }
-}
